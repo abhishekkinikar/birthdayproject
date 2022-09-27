@@ -45,16 +45,12 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 BOOL gbFullScreen = FALSE;
 
-
-
 enum {
 	AMC_ATTRIBUTE_POSITION = 0,
 	AMC_ATTRIBUTE_COLOR,
 	AMC_ATTRIBUTE_NORMAL,
 	AMC_ATTRIBUTE_TEXTURE0
 };
-
-
 
 //water
 GLuint SPObj_Water;
@@ -77,8 +73,6 @@ float water_x[TESSEL_X + 1][TESSEL_Z + 1];
 float water_y[TESSEL_X + 1][TESSEL_Z + 1];
 float water_z[TESSEL_X + 1][TESSEL_Z + 1];
 
-
-
 //Boat
 GLuint SPObj_Boat;
 GLuint VAO_BOAT;
@@ -93,7 +87,6 @@ GLuint kaUniform_boat, kdUniform_boat, ksUniform_boat;
 GLuint materialShininessUniform_boat;
 GLuint lightingEnabledUnifrom_boat;
 GLuint yTransUniform_boat;
-
 
 //Abhishek
 
@@ -408,7 +401,7 @@ int initialize(void) {
 	//Water
 	//Vertex Shader
 	const GLchar* vertexShaderSourceCode =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec4 a_position;" \
 		"in vec3 a_normal;" \
@@ -454,7 +447,7 @@ int initialize(void) {
 
 	//Fragment Shader
 	const GLchar* fragmentShaderSourceCode =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec3 transformedNormal;" \
 		"in vec3 lightDirection;" \
@@ -568,7 +561,7 @@ int initialize(void) {
 	//Boat
 
 	GLchar* vertexShaderSourceCode_Boat =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec4 a_position;" \
 		"in vec3 a_normal;" \
@@ -617,7 +610,7 @@ int initialize(void) {
 	}
 
 	GLchar* fragmentShaderSourceCode_Boat =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec3 transformedNormal;" \
 		"in vec3 lightDirection;" \
@@ -802,13 +795,10 @@ int initialize(void) {
 
 	glBindVertexArray(0);
 
-
-
-
 	//Abhishek
 	// Vertex Shader
 	const GLchar* vertexShaderSourceCode_Iland =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec4 a_position;" \
 		"in vec4 a_color;" \
@@ -872,7 +862,7 @@ int initialize(void) {
 
 	// Fragment Shader
 	const GLchar* fragmentShaderSourceCode_Iland =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec3 transformedNormal;\n" \
 		"in vec3 lightDirection;\n" \
@@ -909,7 +899,7 @@ int initialize(void) {
 		"}";
 	fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
 
-	glShaderSource(fragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
+	glShaderSource(fragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode_Iland, NULL);
 
 	glCompileShader(fragmentShaderObject);
 	status = 0;
@@ -1491,6 +1481,7 @@ void display(void) {
 
 		// *** unbind vao ***
 		glBindVertexArray(0);
+		glUniform1i(lightingEnabledUniform_Iland, 0);
 	modelMatrix = pop();
 
 	push(modelMatrix);

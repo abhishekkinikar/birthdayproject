@@ -1,0 +1,3 @@
+Log file succefully created
+
+Log file succefully closed
