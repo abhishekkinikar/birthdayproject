@@ -173,6 +173,10 @@ GLfloat MaterialDiffuse_Iland[4];
 GLfloat MaterialSpecular_Iland[4];
 GLfloat MaterialShininess_Iland;
 
+//Sun 
+
+GLfloat transitionPoint = -9.0f;
+
 // general
 mat4 perspectiveProjectionMatrix;
 BOOL bLight = FALSE;
@@ -1634,6 +1638,62 @@ void display(void)
 	drawLeaf();
 	modelMatrix = pop();
 	// unUse the shader program object
+
+	// Sun
+
+	push(modelMatrix);
+
+	glUniform1i(lightingEnabledUniform_Iland, 1);
+
+	glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
+	glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
+	glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
+	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
+
+	// ambient material
+	MaterialAmbient_Iland[0] = 0.329412f;	 // r
+	MaterialAmbient_Iland[1] = 0.223529f;	 // g
+	MaterialAmbient_Iland[2] = 0.027451f;	 // b
+	MaterialAmbient_Iland[3] = 1.0f; // a
+	glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
+
+	// diffuse material
+	MaterialDiffuse_Iland[0] = 0.780392f;	 // r
+	MaterialDiffuse_Iland[1] = 0.568627f;	 // g
+	MaterialDiffuse_Iland[2] = 0.113725f;	 // b
+	MaterialDiffuse_Iland[3] = 1.0f; // a
+	glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
+
+	// specular material
+	MaterialSpecular_Iland[0] = 0.992157f; // r
+	MaterialSpecular_Iland[1] = 0.941176f; // g
+	MaterialSpecular_Iland[2] = 0.807843f; // b
+	MaterialSpecular_Iland[3] = 1.0f; // a
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
+
+	// shininess
+	MaterialShininess_Iland = 0.21794872 * 128;
+	glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
+
+	modelMatrix *= translate(0.0f, transitionPoint, -100.0f);
+	modelMatrix *= scale(10.0f, 10.0f, 10.0f);
+
+	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	// *** bind vao ***
+	glBindVertexArray(gVao_sphere);
+
+	// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
+	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+
+	// *** unbind vao ***
+	glBindVertexArray(0);
+	glUniform1i(lightingEnabledUniform_Iland, 0);
+	modelMatrix = pop();
+
 	glUseProgram(0);
 
 	SwapBuffers(ghdc);
@@ -1858,7 +1918,7 @@ void update(void)
 		camPosX = camPosX + 0.001f;
 		objPosX = objPosX + 0.001f;
 
-		if(xTransBoat >= 4.531265)
+		if (xTransBoat >= 4.531265)
 		{
 			camPosZ = camPosZ + 0.0014f;
 			objPosY = objPosY + 0.0002f;
@@ -1866,9 +1926,9 @@ void update(void)
 			{
 				camPosZ = 0.0f;
 				objPosY = 0.0f;
+				transitionPoint = transitionPoint + 0.01f;
 			}
 		}
-		
 	}
 
 	// Iland
