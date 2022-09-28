@@ -632,39 +632,39 @@ int initialize(VOID)
 
 
 	//3
-
+	birdWings = birdWings - 0.2f;
 	const GLfloat triangleVertices12[] =
 	{
-		-0.1f, birdWings, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f,
+		0.1f, birdWings, 0.0f,
+		0.3f, -0.3f, 0.0f,
+		0.29f, -0.3f, 0.0f,
 	};
 
 	const GLfloat triangleVertices22[] =
 	{
-		0.2f, birdWings - 0.02f, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f
+		0.4f, birdWings - 0.02f, 0.0f,
+		0.3f, -0.3f, 0.0f,
+		0.29f, -0.3f, 0.0f
 	};
 
 
 	//VAO and VBO related code
-	glGenVertexArrays(1, &VAO_triangle1); //5th step
-	glBindVertexArray(VAO_triangle1);
-	glGenBuffers(1, &VBO_triangle1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices1), triangleVertices1, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO2_triangle1); //5th step
+	glBindVertexArray(VAO2_triangle1);
+	glGenBuffers(1, &VBO2_triangle1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2_triangle1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices12), triangleVertices12, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glGenVertexArrays(1, &VAO_triangle2); //5th step
-	glBindVertexArray(VAO_triangle2);
-	glGenBuffers(1, &VBO_triangle2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices2), triangleVertices2, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO2_triangle2); //5th step
+	glBindVertexArray(VAO2_triangle2);
+	glGenBuffers(1, &VBO2_triangle2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2_triangle2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices22), triangleVertices22, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
@@ -674,38 +674,38 @@ int initialize(VOID)
 
 
 	//4
+	birdWings = birdWings + 0.2f;
 	const GLfloat triangleVertices13[] =
 	{
 		-0.1f, birdWings, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f,
+		-0.3f, -0.12f, 0.0f,
+		-0.29f, -0.12f, 0.0f,
 	};
 
 	const GLfloat triangleVertices23[] =
 	{
-		0.2f, birdWings - 0.02f, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f
+		-0.4f, birdWings - 0.02f, 0.0f,
+		-0.3f, -0.12f, 0.0f,
+		-0.29f, -0.12f, 0.0f
 	};
 
-
 	//VAO and VBO related code
-	glGenVertexArrays(1, &VAO_triangle1); //5th step
-	glBindVertexArray(VAO_triangle1);
-	glGenBuffers(1, &VBO_triangle1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices1), triangleVertices1, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO3_triangle1); //5th step
+	glBindVertexArray(VAO3_triangle1);
+	glGenBuffers(1, &VBO3_triangle1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3_triangle1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices13), triangleVertices13, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glGenVertexArrays(1, &VAO_triangle2); //5th step
-	glBindVertexArray(VAO_triangle2);
-	glGenBuffers(1, &VBO_triangle2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices2), triangleVertices2, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO3_triangle2); //5th step
+	glBindVertexArray(VAO3_triangle2);
+	glGenBuffers(1, &VBO3_triangle2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3_triangle2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices23), triangleVertices23, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
@@ -714,39 +714,39 @@ int initialize(VOID)
 	glBindVertexArray(0);
 
 	//5
-
+	birdWings = birdWings + 0.42f;
 	const GLfloat triangleVertices14[] =
 	{
 		-0.1f, birdWings, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f,
+		0.1f, 0.3f, 0.0f,
+		0.09f, 0.3f, 0.0f,
 	};
 
 	const GLfloat triangleVertices24[] =
 	{
 		0.2f, birdWings - 0.02f, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f
+		0.1f, 0.3f, 0.0f,
+		0.09f, 0.3f, 0.0f
 	};
 
 
 	//VAO and VBO related code
-	glGenVertexArrays(1, &VAO_triangle1); //5th step
-	glBindVertexArray(VAO_triangle1);
-	glGenBuffers(1, &VBO_triangle1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices1), triangleVertices1, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO4_triangle1); //5th step
+	glBindVertexArray(VAO4_triangle1);
+	glGenBuffers(1, &VBO4_triangle1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO4_triangle1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices14), triangleVertices14, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glGenVertexArrays(1, &VAO_triangle2); //5th step
-	glBindVertexArray(VAO_triangle2);
-	glGenBuffers(1, &VBO_triangle2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices2), triangleVertices2, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO4_triangle2); //5th step
+	glBindVertexArray(VAO4_triangle2);
+	glGenBuffers(1, &VBO4_triangle2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO4_triangle2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices24), triangleVertices24, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
@@ -755,38 +755,39 @@ int initialize(VOID)
 	glBindVertexArray(0);
 
 	//6
+	birdWings = birdWings - 0.1f;
 	const GLfloat triangleVertices15[] =
 	{
-		-0.1f, birdWings, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f,
+		0.3f, birdWings, 0.0f,
+		0.4f, 0.2f, 0.0f,
+		0.39f, 0.2f, 0.0f,
 	};
 
 	const GLfloat triangleVertices25[] =
 	{
-		0.2f, birdWings - 0.02f, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f
+		0.6f, birdWings - 0.02f, 0.0f,
+		0.4f, 0.2f, 0.0f,
+		0.39f, 0.2f, 0.0f
 	};
 
 
 	//VAO and VBO related code
-	glGenVertexArrays(1, &VAO_triangle1); //5th step
-	glBindVertexArray(VAO_triangle1);
-	glGenBuffers(1, &VBO_triangle1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices1), triangleVertices1, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO5_triangle1); //5th step
+	glBindVertexArray(VAO5_triangle1);
+	glGenBuffers(1, &VBO5_triangle1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO5_triangle1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices15), triangleVertices15, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glGenVertexArrays(1, &VAO_triangle2); //5th step
-	glBindVertexArray(VAO_triangle2);
-	glGenBuffers(1, &VBO_triangle2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices2), triangleVertices2, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO5_triangle2); //5th step
+	glBindVertexArray(VAO5_triangle2);
+	glGenBuffers(1, &VBO5_triangle2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO5_triangle2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices25), triangleVertices25, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
@@ -795,38 +796,39 @@ int initialize(VOID)
 	glBindVertexArray(0);
 
 	//7
+	birdWings = birdWings - 0.21f;
 	const GLfloat triangleVertices16[] =
 	{
-		-0.1f, birdWings, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f,
+		0.41f, birdWings, 0.0f,
+		0.55f, -0.01f, 0.0f,
+		0.54f, -0.01f, 0.0f,
 	};
 
 	const GLfloat triangleVertices26[] =
 	{
-		0.2f, birdWings - 0.02f, 0.0f,
-		0.1f, -0.3f, 0.0f,
-		0.09f, -0.3f, 0.0f
+		0.7f, birdWings - 0.02f, 0.0f,
+		0.55f, -0.01f, 0.0f,
+		0.54f, -0.01f, 0.0f
 	};
 
 
 	//VAO and VBO related code
-	glGenVertexArrays(1, &VAO_triangle1); //5th step
-	glBindVertexArray(VAO_triangle1);
-	glGenBuffers(1, &VBO_triangle1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices1), triangleVertices1, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO6_triangle1); //5th step
+	glBindVertexArray(VAO6_triangle1);
+	glGenBuffers(1, &VBO6_triangle1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO6_triangle1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices16), triangleVertices16, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glGenVertexArrays(1, &VAO_triangle2); //5th step
-	glBindVertexArray(VAO_triangle2);
-	glGenBuffers(1, &VBO_triangle2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_triangle2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices2), triangleVertices2, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &VAO6_triangle2); //5th step
+	glBindVertexArray(VAO6_triangle2);
+	glGenBuffers(1, &VBO6_triangle2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO6_triangle2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices26), triangleVertices26, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
@@ -1065,6 +1067,163 @@ VOID display(VOID)
 	glBindVertexArray(0);
 	modelViewMatrix = pop();
 
+	//3
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle1, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO2_triangle1);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle2, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO2_triangle2);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	//4
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle1, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO3_triangle1);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle2, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO3_triangle2);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+
+	//5
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle1, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO4_triangle1);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle2, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO4_triangle2);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	//6
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle1, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO5_triangle1);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle2, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO5_triangle2);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	//7
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle1, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO6_triangle1);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+	push(modelViewMatrix);
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	rotationMatrix = rotate(angleTriangle2, 1.0f, 0.0f, 0.0f);
+	modelViewMatrix = translationMatrix * rotationMatrix;;
+	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
+	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	glBindVertexArray(VAO6_triangle2);
+
+	//Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLES, 0, 3);// 0 pasun start kar 3 vertices draw kar
+
+	glBindVertexArray(0);
+	modelViewMatrix = pop();
+
+
 	//push(modelViewMatrix);
 	//	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
 	//	modelViewMatrix = translationMatrix;
@@ -1165,6 +1324,136 @@ VOID uninitialize(VOID)
 		glDeleteVertexArrays(1, &VAO_triangle2);
 		VAO_triangle2 = 0;
 	}
+	//2
+	if (VBO1_triangle1)
+	{
+		glDeleteBuffers(1, &VBO1_triangle1);
+		VBO1_triangle1 = 0;
+	}
+
+	if (VBO1_triangle2)
+	{
+		glDeleteBuffers(1, &VBO1_triangle2);
+		VBO1_triangle2 = 0;
+	}
+
+	//Deletetion and Uninitialization of VAO
+	if (VAO1_triangle1)
+	{
+		glDeleteVertexArrays(1, &VAO1_triangle1);
+		VAO1_triangle1 = 0;
+	}
+
+	if (VAO1_triangle2)
+	{
+		glDeleteVertexArrays(1, &VAO1_triangle2);
+		VAO1_triangle2 = 0;
+	}
+
+	//3
+	if (VBO2_triangle1)
+	{
+		glDeleteBuffers(1, &VBO2_triangle1);
+		VBO2_triangle1 = 0;
+	}
+
+	if (VBO2_triangle2)
+	{
+		glDeleteBuffers(1, &VBO2_triangle2);
+		VBO2_triangle2 = 0;
+	}
+
+	//Deletetion and Uninitialization of VAO
+	if (VAO2_triangle1)
+	{
+		glDeleteVertexArrays(1, &VAO2_triangle1);
+		VAO2_triangle1 = 0;
+	}
+
+	if (VAO2_triangle2)
+	{
+		glDeleteVertexArrays(1, &VAO2_triangle2);
+		VAO2_triangle2 = 0;
+	}
+
+	//4
+	if (VBO3_triangle1)
+	{
+		glDeleteBuffers(1, &VBO3_triangle1);
+		VBO3_triangle1 = 0;
+	}
+
+	if (VBO3_triangle2)
+	{
+		glDeleteBuffers(1, &VBO3_triangle2);
+		VBO3_triangle2 = 0;
+	}
+
+	//Deletetion and Uninitialization of VAO
+	if (VAO3_triangle1)
+	{
+		glDeleteVertexArrays(1, &VAO3_triangle1);
+		VAO3_triangle1 = 0;
+	}
+
+	if (VAO3_triangle2)
+	{
+		glDeleteVertexArrays(1, &VAO3_triangle2);
+		VAO3_triangle2 = 0;
+	}
+
+	//5
+	if (VBO4_triangle1)
+	{
+		glDeleteBuffers(1, &VBO4_triangle1);
+		VBO4_triangle1 = 0;
+	}
+
+	if (VBO4_triangle2)
+	{
+		glDeleteBuffers(1, &VBO4_triangle2);
+		VBO4_triangle2 = 0;
+	}
+
+	//Deletetion and Uninitialization of VAO
+	if (VAO4_triangle1)
+	{
+		glDeleteVertexArrays(1, &VAO4_triangle1);
+		VAO4_triangle1 = 0;
+	}
+
+	if (VAO4_triangle2)
+	{
+		glDeleteVertexArrays(1, &VAO4_triangle2);
+		VAO4_triangle2 = 0;
+	}
+
+	//6
+	if (VBO5_triangle1)
+	{
+		glDeleteBuffers(1, &VBO5_triangle1);
+		VBO5_triangle1 = 0;
+	}
+
+	if (VBO5_triangle2)
+	{
+		glDeleteBuffers(1, &VBO5_triangle2);
+		VBO5_triangle2 = 0;
+	}
+
+	//Deletetion and Uninitialization of VAO
+	if (VAO5_triangle1)
+	{
+		glDeleteVertexArrays(1, &VAO5_triangle1);
+		VAO5_triangle1 = 0;
+	}
+
+	if (VAO4_triangle2)
+	{
+		glDeleteVertexArrays(1, &VAO4_triangle2);
+		VAO4_triangle2 = 0;
+	}
+
 	//Shader unitialization
 	if (shaderProgramObject)
 	{
