@@ -1,0 +1,7 @@
+#include <Windows.h>
+#include "OGL.h"
+
+MYICON ICON selfcare.ico
+
+IDBITMAP_WOODEN BITMAP wooden.bmp
+
