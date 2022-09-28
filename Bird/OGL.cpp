@@ -418,7 +418,7 @@ int initialize(VOID)
 	//Vertex Shader
 	//Source code
 	const GLchar* vertexShaderSourceCode =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec4 a_position;" \
 		"uniform mat4 u_mvpMatrix;" \
@@ -457,7 +457,7 @@ int initialize(VOID)
 	
 	//fragment Shader
 	const GLchar* fragmentShaderSourceCode =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"out vec4 FragColor;" \
 		"void main(void)" \

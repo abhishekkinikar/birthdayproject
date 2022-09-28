@@ -74,6 +74,9 @@ GLuint ksUniform;
 GLuint materialShinenessUniform;
 
 mat4 perspectiveProjectionMatrix;
+mat4 translationMatrix = mat4::identity();
+mat4 modelMatrix = mat4::identity();
+mat4 viewMatrix = mat4::identity();
 
 //GLfloat lightAmbient[] = { 0.1,0.1,0.1,1.0 };
 //GLfloat lightDiffuse[] = { 1.0,1.0,1.0,1.0 };
@@ -87,7 +90,7 @@ mat4 perspectiveProjectionMatrix;
 GLfloat lightAmbient[] = { 1.0,1.0,1.0,1.0 };
 GLfloat lightDiffuse[] = { 1.0,1.0,1.0,1.0 };
 GLfloat lightSpecular[] = { 1.0,1.0,1.0,1.0 };
-GLfloat lightPosition[] = { -100.0,100.0,100.0,1.0 };
+GLfloat lightPosition[] = { 0.0,100.0,100.0,1.0 };
 
 GLfloat materialAmbient[4];
 GLfloat materialDiffuse[4];
@@ -102,6 +105,85 @@ GLfloat centerCoordinates[] = { 0.0f, 0.0f, 0.0f };
 GLfloat cylinderData[CIRCLE_POINTS * 4 * 3];
 GLfloat cylinderNormals[CIRCLE_POINTS * 4 * 3];
 float angleCylinder = 0.0f;
+
+GLfloat cubePosition[] = {
+								 // top
+								 1.0f, 1.0f, -1.0f,
+								-1.0f, 1.0f, -1.0f,
+								-1.0f, 1.0f, 1.0f,
+								 1.0f, 1.0f, 1.0f,
+
+								 // bottom
+								 1.0f, -1.0f, -1.0f,
+								-1.0f, -1.0f, -1.0f,
+								-1.0f, -1.0f,  1.0f,
+								 1.0f, -1.0f,  1.0f,
+
+								 // front
+								 1.0f, 1.0f, 1.0f,
+								-1.0f, 1.0f, 1.0f,
+								-1.0f, -1.0f, 1.0f,
+								 1.0f, -1.0f, 1.0f,
+
+								 // back
+								 1.0f, 1.0f, -1.0f,
+								-1.0f, 1.0f, -1.0f,
+								-1.0f, -1.0f, -1.0f,
+								 1.0f, -1.0f, -1.0f,
+
+								 // right
+								 1.0f, 1.0f, -1.0f,
+								 1.0f, 1.0f, 1.0f,
+								 1.0f, -1.0f, 1.0f,
+								 1.0f, -1.0f, -1.0f,
+
+								 // left
+								-1.0f, 1.0f, 1.0f,
+								-1.0f, 1.0f, -1.0f,
+								-1.0f, -1.0f, -1.0f,
+								-1.0f, -1.0f, 1.0f,
+								};
+ GLfloat cubeNormals[] = {
+						// top surface
+						0.0f, 1.0f, 0.0f,  // top-right of top
+						0.0f, 1.0f, 0.0f, // top-left of top
+						0.0f, 1.0f, 0.0f, // bottom-left of top
+						0.0f, 1.0f, 0.0f,  // bottom-right of top
+
+						// bottom surface
+						0.0f, -1.0f, 0.0f,  // top-right of bottom
+						0.0f, -1.0f, 0.0f,  // top-left of bottom
+						0.0f, -1.0f, 0.0f,  // bottom-left of bottom
+						0.0f, -1.0f, 0.0f,   // bottom-right of bottom
+
+						// front surface
+						0.0f, 0.0f, 1.0f,  // top-right of front
+						0.0f, 0.0f, 1.0f, // top-left of front
+						0.0f, 0.0f, 1.0f, // bottom-left of front
+						0.0f, 0.0f, 1.0f,  // bottom-right of front
+
+						// back surface
+						0.0f, 0.0f, -1.0f,  // top-right of back
+						0.0f, 0.0f, -1.0f, // top-left of back
+						0.0f, 0.0f, -1.0f, // bottom-left of back
+						0.0f, 0.0f, -1.0f,  // bottom-right of back
+
+							// right surface
+						1.0f, 0.0f, 0.0f,  // top-right of right
+						1.0f, 0.0f, 0.0f,  // top-left of right
+						1.0f, 0.0f, 0.0f,  // bottom-left of right
+						1.0f, 0.0f, 0.0f  // bottom-right of right
+
+						// left surface
+						-1.0f, 0.0f, 0.0f, // top-right of left
+						-1.0f, 0.0f, 0.0f, // top-left of left
+						-1.0f, 0.0f, 0.0f, // bottom-left of left
+						-1.0f, 0.0f, 0.0f, // bottom-right of left
+						};
+
+GLuint vao_cube;
+GLuint vbo_cube_position;
+GLuint vbo_cube_normal;
 
 // Entry point function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -612,7 +694,7 @@ int initialize(void)
 	glBindVertexArray(0);
 
 	//initializeCircle(0.5f, centerCoordinates, CIRCLE_POINTS, circleData);
-	initCylinder(1.5f, centerCoordinates, CIRCLE_POINTS, 0.5f, cylinderData);
+	initCylinder(0.8f, centerCoordinates, CIRCLE_POINTS, 0.3f, cylinderData);
 
 	// vao and vbo related code
 	glGenVertexArrays(1, &vao);
@@ -630,6 +712,26 @@ int initialize(void)
 			glVertexAttribPointer(ARK_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 			glEnableVertexAttribArray(ARK_ATTRIBUTE_NORMAL);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	// vao_cube related code
+	glGenVertexArrays(1, &vao_cube);
+		glBindVertexArray(vao_cube);
+		//vbo_cube_position 
+			glGenBuffers(1, &vbo_cube_position);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_position);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(cubePosition), cubePosition, GL_STATIC_DRAW);
+			glVertexAttribPointer(ARK_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+			glEnableVertexAttribArray(ARK_ATTRIBUTE_POSITION);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// vbo for Normals
+			glGenBuffers(1, &vbo_cube_normal);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_normal);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(cubeNormals), cubeNormals, GL_STATIC_DRAW);
+			glVertexAttribPointer(ARK_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+			glEnableVertexAttribArray(ARK_ATTRIBUTE_NORMAL);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
 	glBindVertexArray(0);
 
 	// Clear the screen using blue color
@@ -766,19 +868,35 @@ void initCylinder(GLfloat radius, GLfloat* center, int countOfPoints, GLfloat he
 }
 void display(void)
 {
+	
+	void shivling(void);
+
 	// Code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Actual window color blue using this funcion 
 	
 	// Use the shader program object
 	glUseProgram(shaderProgramObject);
+	
 
-	mat4 translationMatrix = mat4::identity();
-	mat4 modelMatrix = mat4::identity();
-	mat4 viewMatrix = mat4::identity();
+	shivling();
+	
+	// unUse the shader program object
+	glUseProgram(0);
 
-	translationMatrix = translate(0.0f, 0.0f, -10.0f); // glTradslatef replaced by this line
+	SwapBuffers(ghdc);
+}
+
+void shivling(void)
+{
+	void push(mat4);
+	mat4 pop();
+
+	// code
+	push(modelMatrix);
+
+	translationMatrix = translate(0.0f, -3.0f, -10.0f); // glTradslatef replaced by this line
 	modelMatrix = translationMatrix;
-	modelMatrix *= scale(1.0f, 2.0f, 1.0f);
+	modelMatrix *= scale(0.5f, 1.0f, 0.5f);
 
 	// Transformations
 
@@ -786,44 +904,37 @@ void display(void)
 	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
 	
-	if (bLight == TRUE)
-	{
-		glUniform1i(lightingEnabledUniform, 1);
+	glUniform1i(lightingEnabledUniform, 1);
 
-		glUniform3fv(laUniform, 1, lightAmbient);
-		glUniform3fv(ldUniform, 1, lightDiffuse);
-		glUniform3fv(lsUniform, 1, lightSpecular);
-		glUniform4fv(lightPositionUniform, 1, lightPosition);
+	glUniform3fv(laUniform, 1, lightAmbient);
+	glUniform3fv(ldUniform, 1, lightDiffuse);
+	glUniform3fv(lsUniform, 1, lightSpecular);
+	glUniform4fv(lightPositionUniform, 1, lightPosition);
 
-		// ambient material
-		materialAmbient[0] = 0.05375; // r
-		materialAmbient[1] = 0.05;    // g
-		materialAmbient[2] = 0.06625; // b
-		materialAmbient[3] = 1.0f;    // a
-		glUniform3fv(kaUniform, 1, materialAmbient);
+	// ambient material
+	materialAmbient[0] = 0.05375; // r
+	materialAmbient[1] = 0.05;    // g
+	materialAmbient[2] = 0.06625; // b
+	materialAmbient[3] = 1.0f;    // a
+	glUniform3fv(kaUniform, 1, materialAmbient);
 
-		// diffuse material
-		materialDiffuse[0] = 0.18275; // r
-		materialDiffuse[1] = 0.17;    // g
-		materialDiffuse[2] = 0.22525; // b
-		materialDiffuse[3] = 1.0f;    // a
-		glUniform3fv(kdUniform, 1, materialDiffuse);
+	// diffuse material
+	materialDiffuse[0] = 0.18275; // r
+	materialDiffuse[1] = 0.17;    // g
+	materialDiffuse[2] = 0.22525; // b
+	materialDiffuse[3] = 1.0f;    // a
+	glUniform3fv(kdUniform, 1, materialDiffuse);
 
-		// specular material
-		materialSpecular[0] = 0.332741; // r
-		materialSpecular[1] = 0.328634; // g
-		materialSpecular[2] = 0.346435; // b
-		materialSpecular[3] = 1.0f;     // a
-		glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+	// specular material
+	materialSpecular[0] = 0.332741; // r
+	materialSpecular[1] = 0.328634; // g
+	materialSpecular[2] = 0.346435; // b
+	materialSpecular[3] = 1.0f;     // a
+	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
 
-		// shininess
-		materialShininess = 0.3 * 128;
-		glUniform1f(materialShinenessUniform,materialShininess);
-	}
-	else
-	{
-		glUniform1i(lightingEnabledUniform, 0);
-	}
+	// shininess
+	materialShininess = 0.3 * 128;
+	glUniform1f(materialShinenessUniform,materialShininess);
 	
 	// *** bind vao ***
 	glBindVertexArray(gVao_sphere);
@@ -835,22 +946,88 @@ void display(void)
 	// *** unbind vao ***
 	glBindVertexArray(0);
 
-		translationMatrix = translate(0.0f, -1.0f, -10.0f); // glTradslatef replaced by this line
-		modelMatrix = translationMatrix;
+	translationMatrix = translate(0.0f, -3.5f, -10.0f); // glTradslatef replaced by this line
+	modelMatrix = translationMatrix;
 	//	modelMatrix *= scale(4.0f,4.0f,4.0f);
-		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+	modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
+	glBindVertexArray(0);
+
+	// draw cube
+	modelMatrix = translate(1.3f, -3.35f, -10.0f);
+	modelMatrix *= scale(0.6f,0.15f,0.2f);
+
+	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	glBindVertexArray(vao_cube);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // There is no GL_QUADS in Programmable Pipeline
+		glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
+	glBindVertexArray(0);
+
+	modelMatrix = pop();
+
+	push(modelMatrix);
+
+		glUniform1i(lightingEnabledUniform, 1);
+
+		glUniform3fv(laUniform, 1, lightAmbient);
+		glUniform3fv(ldUniform, 1, lightDiffuse);
+		glUniform3fv(lsUniform, 1, lightSpecular);
+		glUniform4fv(lightPositionUniform, 1, lightPosition);
+
+		// ambient material
+		materialAmbient[0] = 0.0;  // r
+		materialAmbient[1] = 0.0;  // g
+		materialAmbient[2] = 0.0;  // b
+		materialAmbient[3] = 1.0f; // a
+		glUniform3fv(kaUniform, 1, materialAmbient);
+
+		// diffuse material
+		materialDiffuse[0] = 0.5;  // r
+		materialDiffuse[1] = 0.5;  // g
+		materialDiffuse[2] = 0.0;  // b
+		materialDiffuse[3] = 1.0f; // a
+		glUniform3fv(kdUniform, 1, materialDiffuse);
+
+		// specular material
+		materialSpecular[0] = 0.60; // r
+		materialSpecular[1] = 0.60; // g
+		materialSpecular[2] = 0.50; // b
+		materialSpecular[3] = 1.0f; // a
+		glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+
+		// shininess
+		materialShininess = 0.25 * 128;
+		glUniform1f(materialShinenessUniform,materialShininess);
+
+		modelMatrix *= translate(0.0f, -4.0f, -10.0f);
+		modelMatrix *= scale(10.0f, 1.0f, 4.0f);
+
 		glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
 		glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
-		glBindVertexArray(vao);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
-		glBindVertexArray(0);		
-	// unUse the shader program object
-	glUseProgram(0);
 
-	SwapBuffers(ghdc);
+		// *** bind vao ***
+		glBindVertexArray(gVao_sphere);
+
+		// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
+		glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+
+		// *** unbind vao ***
+		glBindVertexArray(0);
+	modelMatrix = pop();
 }
-
 
 void push(mat4 matrix)
 {
