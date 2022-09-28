@@ -368,7 +368,7 @@ int initialize(VOID)
 	//Vertex Shader
 	//Source code
 	const GLchar* vertexShaderSourceCode =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec4 a_position;" \
 		"in vec2 a_texcoord;" \
@@ -410,7 +410,7 @@ int initialize(VOID)
 	
 	//fragment Shader
 	const GLchar* fragmentShaderSourceCode =
-		"#version 460 core" \
+		"#version 440 core" \
 		"\n" \
 		"in vec2 a_texcoord_out;" \
 		"uniform sampler2D u_textureSampler;" \
