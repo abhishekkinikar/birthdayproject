@@ -418,13 +418,16 @@ int initialize(VOID)
 	//Vertex Shader
 	//Source code
 	const GLchar* vertexShaderSourceCode =
-		"#version 440 core" \
+		"#version 460 core" \
 		"\n" \
 		"in vec4 a_position;" \
+		"in vec4 a_color;" \
 		"uniform mat4 u_mvpMatrix;" \
+		"out vec4 a_color_out;" \
 		"void main(void)" \
 		"{" \
 		"gl_Position = u_mvpMatrix * a_position;" \
+		"a_color_out = a_color;" \
 		"}";
 	//Object create kel
 	GLuint vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
@@ -457,12 +460,13 @@ int initialize(VOID)
 	
 	//fragment Shader
 	const GLchar* fragmentShaderSourceCode =
-		"#version 440 core" \
+		"#version 460 core" \
 		"\n" \
 		"out vec4 FragColor;" \
+		"in vec4 a_color_out;"
 		"void main(void)" \
 		"{" \
-		"FragColor = vec4(1.0, 1.0, 1.0, 1.0);" \
+		"FragColor = a_color_out;" \
 		"}";
 
 	//Object creation
@@ -575,6 +579,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO_triangle2); //5th step
@@ -586,6 +592,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
@@ -616,6 +623,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO1_triangle2); //5th step
@@ -627,6 +636,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
@@ -658,6 +668,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO2_triangle2); //5th step
@@ -669,6 +681,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
@@ -699,6 +712,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO3_triangle2); //5th step
@@ -710,6 +725,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
@@ -740,6 +756,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO4_triangle2); //5th step
@@ -751,6 +769,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
@@ -781,6 +800,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO5_triangle2); //5th step
@@ -792,6 +813,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
@@ -822,6 +844,8 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+
 	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &VAO6_triangle2); //5th step
@@ -833,6 +857,7 @@ int initialize(VOID)
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(0);
 
