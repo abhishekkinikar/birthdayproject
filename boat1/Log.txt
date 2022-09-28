@@ -224,15 +224,8 @@ Number of Supported Extensions: 220GL_EXT_blend_minmax
  WGL_INTEL_cl_sharing 
  WGL_NV_DX_interop2 
  WGL_ARB_create_context_robustness 
- Window Focus is Killed
-Window Focus is Set
-Window Focus is Killed
-Window Focus is Set
-Window Focus is Killed
-Window Focus is Set
-Window Focus is Killed
-Window Focus is Set
-Window Focus is Killed
-Window Focus is Set
-Window Focus is Killed
+ Show Full Screen Window
+Exit Full Screen Window
+Show Full Screen Window
+Closed the Window
 Log File is SuccessFully Closed.

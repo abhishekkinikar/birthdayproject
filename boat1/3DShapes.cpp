@@ -49,10 +49,15 @@ GLuint VAO_newcube;
 GLuint VBO_cube_newposition;
 GLuint VBO_cube_newtexcoord;
 
-GLuint mvpMattrixUniform;
+GLuint modelMatrixUniform;
+GLuint viewMatrixUniform;
+GLuint projectionMatrixUniform;
 GLuint textureSamplerUinform;
 
 mat4  perspectiveProjectionMatrix;
+mat4 translationMatrix = mat4::identity();
+mat4 modelMatrix = mat4::identity();
+mat4 viewMatrix = mat4::identity();
 
 
 GLfloat anglecube;
@@ -372,11 +377,14 @@ int initialize(VOID)
 		"\n" \
 		"in vec4 a_position;" \
 		"in vec2 a_texcoord;" \
+		"uniform mat4 u_modelMatrix;" \
+		"uniform mat4 u_viewMatrix;" \
+		"uniform mat4 u_projectionMatrix;" \
 		"uniform mat4 u_mvpMatrix;" \
 		"out vec2 a_texcoord_out;" \
 		"void main(void)" \
 		"{" \
-		"gl_Position = u_mvpMatrix * a_position;" \
+		"gl_Position = u_projectionMatrix * u_viewMatrix* u_modelMatrix * a_position;" \
 		"a_texcoord_out = a_texcoord;" 
 		"}";
 	//Object create kel
@@ -467,7 +475,9 @@ int initialize(VOID)
 	infoLogLength = 0;
 	log = NULL;
 
-	mvpMattrixUniform = glGetUniformLocation(shaderProgramObject, "u_mvpMatrix"); 
+	modelMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_modelMatrix");
+	viewMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_viewMatrix"); // ***Andhar***
+	projectionMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_projectionMatrix"); // ***Andhar***
 	textureSamplerUinform = glGetUniformLocation(shaderProgramObject, "u_textureSampler"); 
 	glGetProgramiv(shaderProgramObject, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
@@ -891,25 +901,15 @@ VOID display(VOID)
 
 	//cube
 	//Tranformations
-	mat4 translationMatrix = mat4::identity();
-	mat4 scaleMatrix = mat4::identity();
-	mat4 rotationMatrix_x = mat4::identity();
-	mat4 rotationMatrix_y = mat4::identity();
-	mat4 rotationMatrix_z = mat4::identity();
-	mat4 rotationMatrix = mat4::identity();
-	mat4 modelViewMatrix = mat4::identity();
-	mat4 modelViewProjectionMatrix = mat4::identity();
+	
 
-	translationMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
-	scaleMatrix = vmath::scale(2.0f, 0.5f, 0.5f);
-	rotationMatrix_x = rotate(anglecube, 1.0f, 0.0f, 0.0f);
-	//rotationMatrix_y = rotate(anglecube, 0.0f, 1.0f, 0.0f);
-	//rotationMatrix_z = rotate(anglecube, 0.0f, 0.0f, 1.0f);
-	rotationMatrix = rotationMatrix_x * rotationMatrix_y * rotationMatrix_z;
-	modelViewMatrix = translationMatrix * rotationMatrix * scaleMatrix;
-	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+	modelMatrix = vmath::translate(0.0f, 0.0f, -16.0f);
+	modelMatrix *= vmath::scale(2.0f, 0.5f, 0.5f);
 
+	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_wooden);
 	glUniform1i(textureSamplerUinform, 0);
@@ -932,25 +932,14 @@ VOID display(VOID)
 
 
 	//new cube
-	translationMatrix = mat4::identity();
-    scaleMatrix = mat4::identity();
-	rotationMatrix_x = mat4::identity();
-	rotationMatrix_y = mat4::identity();
-	rotationMatrix_z = mat4::identity();
-	rotationMatrix = mat4::identity();
-	modelViewMatrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	translationMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
-	scaleMatrix = vmath::scale(1.5f, 0.2f, 0.5f);
-	rotationMatrix_x = rotate(anglecube, 1.0f, 0.0f, 0.0f);
-	//rotationMatrix_y = rotate(anglecube, 0.0f, 1.0f, 0.0f);
-	//rotationMatrix_z = rotate(anglecube, 0.0f, 0.0f, 1.0f);
-	rotationMatrix = rotationMatrix_x * rotationMatrix_y * rotationMatrix_z;
-	modelViewMatrix = translationMatrix * rotationMatrix * scaleMatrix;
-	modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-	glUniformMatrix4fv(mvpMattrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
-
+	
+	modelMatrix = vmath::translate(0.0f, 0.0f, -16.0f);
+	modelMatrix *= vmath::scale(1.5f, 0.2f, 0.5f);
+	
+	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_wooden);
 	glUniform1i(textureSamplerUinform, 0);
