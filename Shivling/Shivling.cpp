@@ -694,7 +694,7 @@ int initialize(void)
 	glBindVertexArray(0);
 
 	//initializeCircle(0.5f, centerCoordinates, CIRCLE_POINTS, circleData);
-	initCylinder(0.8f, centerCoordinates, CIRCLE_POINTS, 0.3f, cylinderData);
+	initCylinder(0.4f, centerCoordinates, CIRCLE_POINTS, 0.15f, cylinderData);
 
 	// vao and vbo related code
 	glGenVertexArrays(1, &vao);
@@ -894,9 +894,9 @@ void shivling(void)
 	// code
 	push(modelMatrix);
 
-	translationMatrix = translate(0.0f, -3.0f, -10.0f); // glTradslatef replaced by this line
+	translationMatrix = translate(0.0f, -3.3f, -10.0f); // glTradslatef replaced by this line
 	modelMatrix = translationMatrix;
-	modelMatrix *= scale(0.5f, 1.0f, 0.5f);
+	modelMatrix *= scale(0.25f, 0.5f, 0.25f);
 
 	// Transformations
 
@@ -958,8 +958,8 @@ void shivling(void)
 	glBindVertexArray(0);
 
 	// draw cube
-	modelMatrix = translate(1.3f, -3.35f, -10.0f);
-	modelMatrix *= scale(0.6f,0.15f,0.2f);
+	modelMatrix = translate(0.6f, -3.45f, -10.0f);
+	modelMatrix *= scale(0.3f,0.075f,0.1f);
 
 	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
@@ -1010,8 +1010,8 @@ void shivling(void)
 		materialShininess = 0.25 * 128;
 		glUniform1f(materialShinenessUniform,materialShininess);
 
-		modelMatrix *= translate(0.0f, -4.0f, -10.0f);
-		modelMatrix *= scale(10.0f, 1.0f, 4.0f);
+		modelMatrix *= translate(3.0f, -4.0f, -10.0f);
+		modelMatrix *= scale(10.0f, 1.0f, 10.0f);
 
 		glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
