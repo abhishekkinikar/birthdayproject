@@ -9,6 +9,7 @@
 #include <GL/gl.h>
 
 #include "vmath.h"
+using namespace vmath;
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
@@ -22,7 +23,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 // global variable declarations
 BOOL gbWindowIsActive = FALSE, gbFullscreen = FALSE;
-FILE *gpFile = NULL;
+FILE* gpFile = NULL;
 HWND ghwnd = NULL;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL;
@@ -36,11 +37,11 @@ enum
     AMC_ATTRIBUTE_TEXTURE0
 };
 
-GLuint shaderProgramObject, mvpMatrixUniform, textureSamplerUniform;
+GLuint shaderProgramObject, modelMatrixUniform, viewMatrixUniform, projectionMatrixUniform, textureSamplerUniform;
 GLuint vao_cube, vbo_cube_position, vbo_cube_texcoord;
 
-GLfloat angleSaturn = 0.0f, angleAstro = 0.0f, angleMedi = 0.0f, angleComp = 0.0f, speed = 0.05f;
-BOOL astro = FALSE, medi = FALSE, comp = FALSE;
+GLfloat angleSaturn = 0.0f, angleAstro = 0.0f, angleMedi = 0.0f, angleComp = 0.0f, angleCfg= 0.0f, speed = 0.55f;
+BOOL astro = FALSE, medi = FALSE, comp = FALSE, cfg = FALSE;
 
 vmath::mat4 perspectiveProjectionMatrix;
 
@@ -218,7 +219,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-    
+
     default:
         break;
     }
@@ -326,17 +327,19 @@ int initialize(void)
     PrintGLInfo();
 
     // vertex shader
-    const GLchar *vertexShaderSourceCode =
+    const GLchar* vertexShaderSourceCode =
         "#version 400 core" \
         "\n" \
         "in vec4 a_position;" \
         "in vec2 a_texcoord;" \
-        "uniform mat4 u_mvpMatrix;" \
+        "uniform mat4 u_modelMatrix;" \
+        "uniform mat4 u_viewMatrix;" \
+        "uniform mat4 u_projectionMatrix;" \
         "out vec2 a_texcoord_out;" \
         "void main(void)" \
         "{" \
-            "gl_Position = u_mvpMatrix * a_position;" \
-            "a_texcoord_out = a_texcoord;" \
+        "gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix  * a_position;" \
+        "a_texcoord_out = a_texcoord;" \
         "}";
 
     GLuint vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
@@ -344,7 +347,7 @@ int initialize(void)
     glCompileShader(vertexShaderObject);
 
     GLint status, infoLogLength;
-    char *log = NULL;
+    char* log = NULL;
     glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);
     if (status == GL_FALSE)
     {
@@ -364,7 +367,7 @@ int initialize(void)
     }
 
     // fragment shader
-    const GLchar *fragmentShaderSourceCode =
+    const GLchar* fragmentShaderSourceCode =
         "#version 400 core" \
         "\n" \
         "in vec2 a_texcoord_out;" \
@@ -372,7 +375,7 @@ int initialize(void)
         "out vec4 fragColor;" \
         "void main(void)" \
         "{" \
-            "fragColor = texture(u_textureSampler, a_texcoord_out);" \
+        "fragColor = texture(u_textureSampler, a_texcoord_out);" \
         "}";
 
     GLuint fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
@@ -399,15 +402,15 @@ int initialize(void)
             }
         }
     }
-    
+
     // shader program object
     shaderProgramObject = glCreateProgram();
     glAttachShader(shaderProgramObject, vertexShaderObject);
     glAttachShader(shaderProgramObject, fragmentShaderObject);
-    
+
     glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_POSITION, "a_position");
     glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_TEXTURE0, "a_texcoord");
-    
+
     glLinkProgram(shaderProgramObject);
 
     status = 0;
@@ -430,10 +433,12 @@ int initialize(void)
             }
         }
     }
-    
-    mvpMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_mvpMatrix");
+
+    modelMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_modelMatrix");
+    viewMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_viewMatrix");
+    projectionMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_projectionMatrix");
     textureSamplerUniform = glGetUniformLocation(shaderProgramObject, "u_textureSampler");
-    
+
     // declaration of vertex data arrays
     const GLfloat cubePosition[] =
     {
@@ -477,31 +482,31 @@ int initialize(void)
     const GLfloat cubeTexcoords[] =
     {
         0.0, 1.0,
-        1.0, 1.0, 
-        1.0, 0.0, 
+        1.0, 1.0,
+        1.0, 0.0,
         0.0, 0.0
     };
-    
+
     // VAO and VBO related code for cube
     glGenVertexArrays(1, &vao_cube);
     glBindVertexArray(vao_cube);
-    
+
     glGenBuffers(1, &vbo_cube_position);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_position);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubePosition), cubePosition, GL_STATIC_DRAW);
-    
+
     glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &vbo_cube_texcoord);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_texcoord);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeTexcoords), cubeTexcoords, GL_STATIC_DRAW);
-    
+
     glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(vbo_cube_position);
@@ -525,11 +530,11 @@ int initialize(void)
     if (LoadGLTexture(&texture_comp, MAKEINTRESOURCE(IDBITMAP_COMP)) == FALSE)
         return -9;
 
-    // if (LoadGLTexture(&texture_cgp, MAKEINTRESOURCE(IDBITMAP_CGP)) == FALSE)
-    //     return -10;
+    if (LoadGLTexture(&texture_cgp, MAKEINTRESOURCE(IDBITMAP_CGP)) == FALSE)
+       return -10;
 
     glEnable(GL_TEXTURE_2D);
-    
+
     perspectiveProjectionMatrix = vmath::mat4::identity();
 
     // warm-up call to resize
@@ -558,7 +563,7 @@ void PrintGLInfo(void)
     }
 }
 
-BOOL LoadGLTexture(GLuint *texture, TCHAR imageResourceId[])
+BOOL LoadGLTexture(GLuint* texture, TCHAR imageResourceId[])
 {
     // variable declarations
     HBITMAP hBitmap = NULL;
@@ -598,7 +603,7 @@ void resize(int width, int height)
         height = 1; // to avoid division by zero in future
 
     glViewport(0, 0, (GLsizei)width, (GLsizei)height);
-    
+
     perspectiveProjectionMatrix = vmath::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
 }
 
@@ -614,85 +619,100 @@ void display(void)
     glUseProgram(shaderProgramObject);
 
     // transformations
-    vmath::mat4 translationMatrix = vmath::mat4::identity();
     vmath::mat4 scaleMatrix = vmath::mat4::identity();
     vmath::mat4 rotationMatrix = vmath::mat4::identity();
-    vmath::mat4 modelViewMatrix = vmath::mat4::identity();
-    vmath::mat4 modelViewProjectionMatrix = vmath::mat4::identity();
+    mat4 modelMatrix = mat4::identity();
+    mat4 viewMatrix = mat4::identity();
+    mat4 translationMatrix = mat4::identity();
 
     translationMatrix = vmath::translate(-2.0f, 0.5f, -6.0f);
-    scaleMatrix = vmath::scale(-0.5f, -0.5f, -0.5f);
+    scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
     rotationMatrix = vmath::rotate(angleSaturn, 1.0f, 0.0f, 0.0f);
-    modelViewMatrix = translationMatrix * scaleMatrix * rotationMatrix;
-    
-    modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-    glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
-    
+    modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+    glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+
     glBindVertexArray(vao_cube);
-
+    
     drawCube(texture_saturn);
-
+    
     // transformations
-    translationMatrix = vmath::mat4::identity();
-    rotationMatrix = vmath::mat4::identity();
-    modelViewMatrix = vmath::mat4::identity();
-    modelViewProjectionMatrix = vmath::mat4::identity();
+     scaleMatrix = vmath::mat4::identity();
+     rotationMatrix = vmath::mat4::identity();
+     modelMatrix = mat4::identity();
+     viewMatrix = mat4::identity();
+     translationMatrix = mat4::identity();
 
     translationMatrix = vmath::translate(-1.0f, 0.5f, -6.0f);
+    scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
     rotationMatrix = vmath::rotate(angleAstro, 1.0f, 0.0f, 0.0f);
-    modelViewMatrix = translationMatrix * scaleMatrix * rotationMatrix;
-    
-    modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-    glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+    modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+    glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
 
     drawCube(texture_astro);
-
+ 
     // transformations
     translationMatrix = vmath::mat4::identity();
+    scaleMatrix = vmath::mat4::identity();
     rotationMatrix = vmath::mat4::identity();
-    modelViewMatrix = vmath::mat4::identity();
-    modelViewProjectionMatrix = vmath::mat4::identity();
+    modelMatrix = mat4::identity();
+    viewMatrix = mat4::identity();
 
     translationMatrix = vmath::translate(0.0f, 0.5f, -6.0f);
+    scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
     rotationMatrix = vmath::rotate(angleMedi, 1.0f, 0.0f, 0.0f);
-    modelViewMatrix = translationMatrix * scaleMatrix * rotationMatrix;
-    
-    modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-    glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+    modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+    glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
 
     drawCube(texture_medi);
 
+  
     // transformations
     translationMatrix = vmath::mat4::identity();
+    scaleMatrix = vmath::mat4::identity();
     rotationMatrix = vmath::mat4::identity();
-    modelViewMatrix = vmath::mat4::identity();
-    modelViewProjectionMatrix = vmath::mat4::identity();
+    modelMatrix = mat4::identity();
+    viewMatrix = mat4::identity();
 
     translationMatrix = vmath::translate(1.0f, 0.5f, -6.0f);
+    scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
     rotationMatrix = vmath::rotate(angleComp, 1.0f, 0.0f, 0.0f);
-    modelViewMatrix = translationMatrix * scaleMatrix * rotationMatrix;
-    
-    modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-    glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+    modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+    glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
 
     drawCube(texture_comp);
+ 
+    // cfg
+    translationMatrix = vmath::mat4::identity();
+    scaleMatrix = vmath::mat4::identity();
+    rotationMatrix = vmath::mat4::identity();
+    modelMatrix = mat4::identity();
+    viewMatrix = mat4::identity();
 
-    // transformations
-    // translationMatrix = vmath::mat4::identity();
-    // rotationMatrix = vmath::mat4::identity();
-    // modelViewMatrix = vmath::mat4::identity();
-    // modelViewProjectionMatrix = vmath::mat4::identity();
+    translationMatrix = vmath::translate(0.0f, -1.0f, -6.0f);
+    scaleMatrix = vmath::scale(-1.5f, -0.4f, -0.4f);
+    rotationMatrix = vmath::rotate(angleCfg, 1.0f, 0.0f, 0.0f);
+    modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
 
-    // translationMatrix = vmath::translate(0.0f, -1.5f, -6.0f);
-    // modelViewMatrix = translationMatrix * scaleMatrix * rotationMatrix;
-    
-    // modelViewProjectionMatrix = perspectiveProjectionMatrix * modelViewMatrix;
-    // glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
-    
-    // drawCube(texture_cgp);
-    
+    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+    glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+    drawCube(texture_cgp);
+   
     glBindVertexArray(0);
-
+  
     // unuse the shader program object
     glUseProgram(0);
 
@@ -704,7 +724,7 @@ void drawCube(GLuint texture)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(textureSamplerUniform, 0);
-    
+
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
@@ -723,7 +743,7 @@ void update(void)
         angleSaturn = -90.0f;
         astro = TRUE;
     }
-    
+
     if (astro == TRUE)
     {
         angleAstro = angleAstro - speed;
@@ -733,7 +753,7 @@ void update(void)
             medi = TRUE;
         }
     }
-    
+
     if (medi == TRUE)
     {
         angleMedi = angleMedi - speed;
@@ -743,12 +763,25 @@ void update(void)
             comp = TRUE;
         }
     }
-    
+
     if (comp == TRUE)
     {
         angleComp = angleComp - speed;
         if (angleComp <= -90.0f)
+        {
             angleComp = -90.0f;
+            cfg = TRUE;
+        }
+    }
+
+    if (cfg == TRUE)
+    {
+        angleCfg = angleCfg - speed;
+        if (angleCfg <= -90.0f)
+        {
+            angleCfg = -90.0f;
+           
+        }
     }
 }
 
@@ -765,7 +798,7 @@ void uninitialize(void)
         glDeleteTextures(1, &texture_saturn);
         texture_saturn = 0;
     }
-    
+
     // deletion and uninitialization of VBO
     if (vbo_cube_texcoord)
     {
@@ -777,7 +810,7 @@ void uninitialize(void)
         glDeleteBuffers(1, &vbo_cube_position);
         vbo_cube_position = 0;
     }
-    
+
     // deletion and uninitialization of VAO
     if (vao_cube)
     {
@@ -793,8 +826,8 @@ void uninitialize(void)
         GLsizei numAttachedShaders;
         glGetProgramiv(shaderProgramObject, GL_ATTACHED_SHADERS, &numAttachedShaders);
 
-        GLuint *shaderObjects = NULL;
-        shaderObjects = (GLuint*)malloc(numAttachedShaders * sizeof (GLuint));
+        GLuint* shaderObjects = NULL;
+        shaderObjects = (GLuint*)malloc(numAttachedShaders * sizeof(GLuint));
 
         glGetAttachedShaders(shaderProgramObject, numAttachedShaders, &numAttachedShaders, shaderObjects);
         for (GLsizei i = 0; i < numAttachedShaders; i++)
@@ -803,10 +836,10 @@ void uninitialize(void)
             glDeleteShader(shaderObjects[i]);
             shaderObjects[i] = 0;
         }
-        
+
         free(shaderObjects);
         shaderObjects = NULL;
-        
+
         glUseProgram(0);
         glDeleteProgram(shaderProgramObject);
         shaderProgramObject = 0;
@@ -841,5 +874,5 @@ void uninitialize(void)
         fprintf(gpFile, "Logfile is successfully closed\n");
         fclose(gpFile);
         gpFile = NULL;
-    }        
+    }
 }
