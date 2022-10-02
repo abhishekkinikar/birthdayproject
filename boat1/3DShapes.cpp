@@ -29,7 +29,7 @@ BOOL gbFullScreen = FALSE;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 //Programmable Pipeline related global variables
-GLuint shaderProgramObject;
+GLuint SPObj_Boat;
 
 enum
 {
@@ -41,18 +41,18 @@ enum
 
 
 
-GLuint VAO_cube;
-GLuint VBO_cube_position;
-GLuint VBO_cube_texcoord;
+GLuint VAO_BOAT;
+GLuint VBO_boat_position;
+GLuint VBO_boat_texcoord;
 
-GLuint VAO_newcube;
-GLuint VBO_cube_newposition;
-GLuint VBO_cube_newtexcoord;
+GLuint VAO_newboat;
+GLuint VBO_boat_newposition;
+GLuint VBO_boat_newtexcoord;
 
-GLuint modelMatrixUniform;
-GLuint viewMatrixUniform;
-GLuint projectionMatrixUniform;
-GLuint textureSamplerUinform;
+GLuint modelMatrixUniform_boat;
+GLuint viewMatrixUniform_boat;
+GLuint projectionMatrixUniform_boat;
+GLuint TSU_boat;
 
 mat4  perspectiveProjectionMatrix;
 mat4 translationMatrix = mat4::identity();
@@ -459,37 +459,37 @@ int initialize(VOID)
 
 	//Shader program Object
 	//Create shader object
-	shaderProgramObject = glCreateProgram();
+	SPObj_Boat = glCreateProgram();
 	//Attach shader object
-	glAttachShader(shaderProgramObject, vertexShaderObject);
-	glAttachShader(shaderProgramObject, fragmentShaderObject);
+	glAttachShader(SPObj_Boat, vertexShaderObject);
+	glAttachShader(SPObj_Boat, fragmentShaderObject);
 
 	//
-	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_POSITION, "a_position"); 
-	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_TEXTURE0, "a_texcoord");   
+	glBindAttribLocation(SPObj_Boat, AMC_ATTRIBUTE_POSITION, "a_position"); 
+	glBindAttribLocation(SPObj_Boat, AMC_ATTRIBUTE_TEXTURE0, "a_texcoord");   
 	//Link the shader program object
-	glLinkProgram(shaderProgramObject);
+	glLinkProgram(SPObj_Boat);
 
 	// linking che Error
 	status = 0;
 	infoLogLength = 0;
 	log = NULL;
 
-	modelMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_modelMatrix");
-	viewMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_viewMatrix"); // ***Andhar***
-	projectionMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_projectionMatrix"); // ***Andhar***
-	textureSamplerUinform = glGetUniformLocation(shaderProgramObject, "u_textureSampler"); 
-	glGetProgramiv(shaderProgramObject, GL_LINK_STATUS, &status);
+	modelMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_modelMatrix");
+	viewMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_viewMatrix"); // ***Andhar***
+	projectionMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_projectionMatrix"); // ***Andhar***
+	TSU_boat = glGetUniformLocation(SPObj_Boat, "u_textureSampler"); 
+	glGetProgramiv(SPObj_Boat, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetProgramiv(shaderProgramObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		glGetProgramiv(SPObj_Boat, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength >= 0)
 		{
 			log = (CHAR*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetProgramInfoLog(shaderProgramObject, infoLogLength, &written, log);
+				glGetProgramInfoLog(SPObj_Boat, infoLogLength, &written, log);
 				fprintf(gpFile, "Shader program's link log: %s\n", log);
 				free(log);
 				uninitialize();
@@ -711,11 +711,11 @@ int initialize(VOID)
 	//cube
 	//VAO and VBO related code
 	//VAO
-	glGenVertexArrays(1, &VAO_cube); //5th step
-	glBindVertexArray(VAO_cube);
+	glGenVertexArrays(1, &VAO_BOAT); //5th step
+	glBindVertexArray(VAO_BOAT);
 	//VBO for position
-	glGenBuffers(1, &VBO_cube_position);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_cube_position);
+	glGenBuffers(1, &VBO_boat_position);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_position);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubePosition), cubePosition, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
@@ -723,8 +723,8 @@ int initialize(VOID)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//VBO for texture
-	glGenBuffers(1, &VBO_cube_texcoord);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_cube_texcoord);
+	glGenBuffers(1, &VBO_boat_texcoord);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_texcoord);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeTexcoord), cubeTexcoord, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL); 
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
@@ -736,11 +736,11 @@ int initialize(VOID)
 	//cube
 	//VAO and VBO related code
 	//VAO
-	glGenVertexArrays(1, &VAO_newcube); //5th step
-	glBindVertexArray(VAO_newcube);
+	glGenVertexArrays(1, &VAO_newboat); //5th step
+	glBindVertexArray(VAO_newboat);
 	//VBO for position
-	glGenBuffers(1, &VBO_cube_newposition);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_cube_newposition);
+	glGenBuffers(1, &VBO_boat_newposition);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_newposition);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(newcubePosition), newcubePosition, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
@@ -748,8 +748,8 @@ int initialize(VOID)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//VBO for texture
-	glGenBuffers(1, &VBO_cube_newtexcoord);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_cube_newtexcoord);
+	glGenBuffers(1, &VBO_boat_newtexcoord);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_newtexcoord);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(newcubeTexcoord), newcubeTexcoord, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL); 
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
@@ -873,7 +873,7 @@ VOID display(VOID)
 	//code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//use the shader program object
-	glUseProgram(shaderProgramObject);
+	glUseProgram(SPObj_Boat);
 
 	/*//pyramid
 	//Tranformations
@@ -890,7 +890,7 @@ VOID display(VOID)
 
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, texture_stone);
-	//glUniform1i(textureSamplerUinform, 0);
+	//glUniform1i(TSU_boat, 0);
 
 	glBindVertexArray(VAO_pyramid);
 
@@ -906,16 +906,16 @@ VOID display(VOID)
 	modelMatrix = vmath::translate(0.0f, 0.0f, -16.0f);
 	modelMatrix *= vmath::scale(2.0f, 0.5f, 0.5f);
 
-	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_wooden);
-	glUniform1i(textureSamplerUinform, 0);
+	glUniform1i(TSU_boat, 0);
 	
 
-	glBindVertexArray(VAO_cube);
+	glBindVertexArray(VAO_BOAT);
 
 	//Here there shouls be drawing code
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -936,16 +936,16 @@ VOID display(VOID)
 	modelMatrix = vmath::translate(0.0f, 0.0f, -16.0f);
 	modelMatrix *= vmath::scale(1.5f, 0.2f, 0.5f);
 	
-	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_wooden);
-	glUniform1i(textureSamplerUinform, 0);
+	glUniform1i(TSU_boat, 0);
 
 
-	glBindVertexArray(VAO_newcube);
+	glBindVertexArray(VAO_newboat);
 
 	//Here there shouls be drawing code
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -993,46 +993,46 @@ VOID uninitialize(VOID)
 	}
 	
 
-	if (VBO_cube_position)
+	if (VBO_boat_position)
 	{
-		glDeleteBuffers(1, &VBO_cube_position);
-		VBO_cube_position = 0;
+		glDeleteBuffers(1, &VBO_boat_position);
+		VBO_boat_position = 0;
 	}
 
-	if (VBO_cube_texcoord)
+	if (VBO_boat_texcoord)
 	{
-		glDeleteBuffers(1, &VBO_cube_texcoord);
-		VBO_cube_texcoord = 0;
+		glDeleteBuffers(1, &VBO_boat_texcoord);
+		VBO_boat_texcoord = 0;
 	}
 	//Deletetion and Uninitialization of VAO
-	if (VAO_cube)
+	if (VAO_BOAT)
 	{
-		glDeleteVertexArrays(1, &VAO_cube);
-		VAO_cube = 0;
+		glDeleteVertexArrays(1, &VAO_BOAT);
+		VAO_BOAT = 0;
 	}
 	
 
 	//Shader unitialization
-	if (shaderProgramObject)
+	if (SPObj_Boat)
 	{
-		glUseProgram(shaderProgramObject);
+		glUseProgram(SPObj_Boat);
 		
 		GLsizei numAttachedShaders;
-		glGetProgramiv(shaderProgramObject, GL_ATTACHED_SHADERS, &numAttachedShaders);
+		glGetProgramiv(SPObj_Boat, GL_ATTACHED_SHADERS, &numAttachedShaders);
 		GLuint* shaderObjects = NULL;
 		shaderObjects = (GLuint*)malloc(numAttachedShaders * sizeof(GLuint));
-		glGetAttachedShaders(shaderProgramObject, numAttachedShaders, &numAttachedShaders, shaderObjects);
+		glGetAttachedShaders(SPObj_Boat, numAttachedShaders, &numAttachedShaders, shaderObjects);
 		for (GLsizei i = 0; i < numAttachedShaders; i++)
 		{
-			glDetachShader(shaderProgramObject, shaderObjects[i]);
+			glDetachShader(SPObj_Boat, shaderObjects[i]);
 			glDeleteShader(shaderObjects[i]);
 			shaderObjects[i] = 0;
 		}
 		free(shaderObjects);
 		shaderObjects = NULL;
 		glUseProgram(0);
-		glDeleteProgram(shaderProgramObject);
-		shaderProgramObject = 0;
+		glDeleteProgram(SPObj_Boat);
+		SPObj_Boat = 0;
 	}
 
 	if (wglGetCurrentContext() == ghlrc)

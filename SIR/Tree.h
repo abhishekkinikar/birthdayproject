@@ -7,14 +7,14 @@
 
 struct tree
 {
-	int level;
+	float level;
 	struct tree* branch1;
 	struct tree* branch2;
 	struct tree* parent;
 };
 struct tree* root = NULL;
 
-void newBranch(struct tree* p, int branchNo)
+void newBranch(struct tree* p, float branchNo)
 {
 	struct tree* node = NULL;
 	node = (struct tree*)malloc(sizeof(struct tree));
@@ -46,7 +46,7 @@ void newBranch(struct tree* p, int branchNo)
 	}
 }
 
-void genTree(struct tree* newNode, int height)
+void genTree(struct tree* newNode, float height)
 {
 	newBranch(newNode, 1);  // creating branch 1
 
@@ -62,7 +62,7 @@ void genTree(struct tree* newNode, int height)
 	}
 }
 
-void generateTree(int height)
+void generateTree(float height)
 {
 	newBranch(NULL, 0); // root node 
 	genTree(root, height);

@@ -106,7 +106,7 @@ GLfloat cylinderData[CIRCLE_POINTS * 4 * 3];
 GLfloat cylinderNormals[CIRCLE_POINTS * 4 * 3];
 float angleCylinder = 0.0f;
 
-GLfloat cubePosition[] = {
+GLfloat shivlingPosition[] = {
 								 // top
 								 1.0f, 1.0f, -1.0f,
 								-1.0f, 1.0f, -1.0f,
@@ -143,7 +143,7 @@ GLfloat cubePosition[] = {
 								-1.0f, -1.0f, -1.0f,
 								-1.0f, -1.0f, 1.0f,
 								};
- GLfloat cubeNormals[] = {
+ GLfloat shivlingNormals[] = {
 						// top surface
 						0.0f, 1.0f, 0.0f,  // top-right of top
 						0.0f, 1.0f, 0.0f, // top-left of top
@@ -720,14 +720,14 @@ int initialize(void)
 		//vbo_cube_position 
 			glGenBuffers(1, &vbo_cube_position);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_position);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(cubePosition), cubePosition, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(shivlingPosition), shivlingPosition, GL_STATIC_DRAW);
 			glVertexAttribPointer(ARK_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 			glEnableVertexAttribArray(ARK_ATTRIBUTE_POSITION);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		// vbo for Normals
 			glGenBuffers(1, &vbo_cube_normal);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_normal);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(cubeNormals), cubeNormals, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(shivlingNormals), shivlingNormals, GL_STATIC_DRAW);
 			glVertexAttribPointer(ARK_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 			glEnableVertexAttribArray(ARK_ATTRIBUTE_NORMAL);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
