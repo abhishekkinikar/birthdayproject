@@ -704,7 +704,7 @@ int initialize(void)
 	glBindVertexArray(0);
 
 	//initializeCircle(0.5f, centerCoordinates, CIRCLE_POINTS, circleData);
-	initCylinder(0.04f, centerCoordinates, CIRCLE_POINTS, 1.0f, cylinderData);
+	initCylinder(0.03f, centerCoordinates, CIRCLE_POINTS, 0.3f, cylinderData);
 	generateTree(6);
 
 	// vao and vbo related code
@@ -864,7 +864,7 @@ void display(void)
 {
 	// Function declaration
 	void push(mat4);
-	void drawTree(int);
+	void drawTree(float);
 	mat4 pop();
 	void drawLeaf();
 
@@ -915,8 +915,20 @@ void display(void)
 		rotationMatrix = rotate(-90.0f, 1.0f, 0.0f, 0.0f);
 		modelMatrix = modelMatrix * rotationMatrix;
 
-			drawTree(5);
+			drawTree(8.0f);
+		
+		modelMatrix = translate(5.0f,-4.0f,-6.0f);
+		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+			drawTree(8.0f);
 					
+		modelMatrix = translate(-4.0f,-4.0f,-4.0f);
+		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+			drawTree(8.0f);
+
+		modelMatrix = translate(-3.0f,-4.0f,-11.0f);
+		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+		modelMatrix *= scale(0.5f,0.5f,0.5f);
+			drawTree(8.0f);
 	modelMatrix = pop();
 
 	push(modelMatrix);
@@ -953,8 +965,8 @@ void display(void)
 		MaterialShininess = 0.25 * 128;
 		glUniform1f(materialShinenessUniform,MaterialShininess);
 
-		modelMatrix *= translate(0.0f, -4.0f, -10.0f);
-		modelMatrix *= scale(7.0f, 1.0f, 4.0f);
+		modelMatrix *= translate(0.0f, -5.0f, -10.0f);
+		modelMatrix *= scale(20.0f, 2.0f, 10.0f);
 
 		glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
@@ -972,7 +984,7 @@ void display(void)
 	modelMatrix = pop();
 
 	push(modelMatrix);
-		modelMatrix *= translate(-1.2f,-1.4f,-10.0f);
+		modelMatrix *= translate(-1.2f,-0.05f,-10.0f);
 		modelMatrix *= rotate(35.0f,0.0f,0.0f,1.0f);
 		drawLeaf();
 	modelMatrix = pop();
@@ -1006,29 +1018,30 @@ mat4 pop()
 	return(matrixStack[top]);
 }
 
-void drawTree(int height)
+void drawTree(float height)
 {
 	// function declarations
 	mat4 pop();
-	void traverseTree(struct tree*, int);
+	void traverseTree(struct tree*, float);
 
 	srand(0);
 	push(modelMatrix);
 	{
 		// Transformations
+		modelMatrix *= scale((GLfloat)height*0.5f, (GLfloat)height*0.5f, (GLfloat)height*0.5f);
 		glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
 		glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
 		glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
 		glBindVertexArray(0);		
-		modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.2f);	
-		traverseTree(root, height - 1);
+		modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);	
+		traverseTree(root, height - 0.03f);
 	}
 	modelMatrix = pop();
 }
 
-void traverseTree(struct tree* node, int height)
+void traverseTree(struct tree* node, float height)
 {
 	push(modelMatrix);
 	{
@@ -1037,6 +1050,7 @@ void traverseTree(struct tree* node, int height)
 			float rotateAngle = (float)(rand() % 40);
 			srand(0);
 			modelMatrix *= rotate(rotateAngle, 0.0f,1.0f,0.0f);
+			modelMatrix *= scale((GLfloat)height*0.1f, (GLfloat)height*0.1f, (GLfloat)height*0.1f);
 			// Transformations
 			glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 			glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
@@ -1045,9 +1059,9 @@ void traverseTree(struct tree* node, int height)
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
 			glBindVertexArray(0);
 
-			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.2f);
+			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);
 			
-			traverseTree(node->branch1, height - 1);
+			traverseTree(node->branch1, height - 0.03);
 		}
 	}
 	modelMatrix = pop();
@@ -1059,7 +1073,7 @@ void traverseTree(struct tree* node, int height)
 			float rotateAngle = (float)(rand() % 40);
 			srand(10);
 			modelMatrix *= rotate(rotateAngle, 0.0f, -1.0f, 0.0f);
-
+			modelMatrix *= scale((GLfloat)height*0.1f, (GLfloat)height*0.1f, (GLfloat)height*0.1f);
 			// Transformations
 			glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
 			glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
@@ -1067,8 +1081,8 @@ void traverseTree(struct tree* node, int height)
 			glBindVertexArray(vao);
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
 			glBindVertexArray(0);
-			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.2f);	
-			traverseTree(node->branch2, height - 1);
+			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);	
+			traverseTree(node->branch2, height - 0.03);
 		}
 	}
 	modelMatrix = pop();
@@ -1141,16 +1155,16 @@ void drawLeaf()
 }
 void update(void)
 {
-	const float radian = M_PI / 180.0f;
-	static float angle=0.0f;
-	// Code
-	xRotate = cameraRadius * cos(M_PI * (angle / 180.0f));
+	// const float radian = M_PI / 180.0f;
+	// static float angle=0.0f;
+	// // Code
+	// xRotate = cameraRadius * cos(M_PI * (angle / 180.0f));
 
-	zTranslate = cameraRadius * sin(M_PI * (angle / 180.0f));
+	// zTranslate = cameraRadius * sin(M_PI * (angle / 180.0f));
 
-	angle += 0.1f;
-	if(angle >= 360.0f)
-		angle -= 360.0f;
+	// angle += 0.1f;
+	// if(angle >= 360.0f)
+	// 	angle -= 360.0f;
 }
 void uninitialize(void)
 {
