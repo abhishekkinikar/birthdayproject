@@ -159,6 +159,7 @@ float zTranslate = 5.0f;
 float xRotate = 0.0f;
 float cameraRadius = 30.0f;
 int scene = 1;
+BOOL flag = TRUE;
 
 GLfloat camPosZ = 0.0f;
 GLfloat camPosX = 0.0f;
@@ -187,7 +188,21 @@ GLfloat MaterialShininess_Iland;
 //Sun 
 
 GLfloat transitionPoint = -9.0f;
+GLuint shaderProgramObject_sunrise;
+GLuint modelMatrixUniform_sunrise;
+GLuint viewMatrixUniform_sunrise;
+GLuint projectionMatrixUniform_sunrise;
+GLuint changeColorUniform;
 
+GLint i = 0;
+GLfloat f = 0.0f;
+GLfloat yTransition = -4.0f;
+
+GLfloat sphereColor_xShift = 0.1f / 100.0f;
+GLfloat sphereColor_yShift = 0.9f / 100.0f;
+GLfloat sphereColor_zShift = 0.3f / 100.0f;
+
+GLfloat colorArray[] = {0.9f, 0.1f, 0.0f,};
 //Shivlinga
 
 GLuint vao_shivling;
@@ -490,19 +505,19 @@ int initialize(void)
 	glShaderSource(vertexShaderObject, 1, (const GLchar **)&vertexShaderSourceCode_water, NULL);
 	glCompileShader(vertexShaderObject);
 
-	GLint status, infoLoglength;
+	GLint status, infoLogLength;
 	char *log = NULL;
 	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char *)malloc(infoLoglength);
+			log = (char *)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(vertexShaderObject, infoLoglength, &written, log);
+				glGetShaderInfoLog(vertexShaderObject, infoLogLength, &written, log);
 				fprintf(gpFile, "Vertex Shader compilation log : %s \n", log);
 				free(log);
 				uninitialize();
@@ -550,14 +565,14 @@ int initialize(void)
 	glGetShaderiv(fragmentShaderObject, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char *)malloc(infoLoglength);
+			log = (char *)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(fragmentShaderObject, infoLoglength, &written, log);
+				glGetShaderInfoLog(fragmentShaderObject, infoLogLength, &written, log);
 				fprintf(gpFile, "Fragment Shader compilation log : %s \n", log);
 				free(log);
 				uninitialize();
@@ -575,14 +590,14 @@ int initialize(void)
 	glGetProgramiv(SPObj_Water, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetProgramiv(SPObj_Water, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetProgramiv(SPObj_Water, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char *)malloc(infoLoglength);
+			log = (char *)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetProgramInfoLog(SPObj_Water, infoLoglength, &written, log);
+				glGetProgramInfoLog(SPObj_Water, infoLogLength, &written, log);
 				fprintf(gpFile, "Shader Program Water Link Log : %s\n", log);
 				free(log);
 				uninitialize();
@@ -654,20 +669,20 @@ int initialize(void)
 	glCompileShader(vertexShaderObject);
 	//Error Checking
 	status = 0;
-	infoLoglength = 0;
+	infoLogLength = 0;
 	log = NULL;
 
 	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);//
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char*)malloc(infoLoglength);
+			log = (char*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(vertexShaderObject, infoLoglength, &written, log);
+				glGetShaderInfoLog(vertexShaderObject, infoLogLength, &written, log);
 				fprintf(gpFile, "Vertex Shader Compilation Log: %s\n", log);
 				free(log);
 				uninitialize();
@@ -695,20 +710,20 @@ int initialize(void)
 	glCompileShader(fragmentShaderObject);
 
 	status = 0;
-	infoLoglength = 0;
+	infoLogLength = 0;
 	log = NULL;
 
 	glGetShaderiv(fragmentShaderObject, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (CHAR*)malloc(infoLoglength);
+			log = (CHAR*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(fragmentShaderObject, infoLoglength, &written, log);
+				glGetShaderInfoLog(fragmentShaderObject, infoLogLength, &written, log);
 				fprintf(gpFile, "Fragment Shader Compilation Log: %s\n", log);
 				free(log);
 				uninitialize();
@@ -731,7 +746,7 @@ int initialize(void)
 
 	// linking che Error
 	status = 0;
-	infoLoglength = 0;
+	infoLogLength = 0;
 	log = NULL;
 
 	modelMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_modelMatrix");
@@ -741,14 +756,14 @@ int initialize(void)
 	glGetProgramiv(SPObj_Boat, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetProgramiv(SPObj_Boat, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength >= 0)
+		glGetProgramiv(SPObj_Boat, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength >= 0)
 		{
-			log = (CHAR*)malloc(infoLoglength);
+			log = (CHAR*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetProgramInfoLog(SPObj_Boat, infoLoglength, &written, log);
+				glGetProgramInfoLog(SPObj_Boat, infoLogLength, &written, log);
 				fprintf(gpFile, "Shader program's link log: %s\n", log);
 				free(log);
 				uninitialize();
@@ -1062,15 +1077,15 @@ int initialize(void)
 
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char *)malloc(infoLoglength);
+			log = (char *)malloc(infoLogLength);
 
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(vertexShaderObject, infoLoglength, &written, log);
+				glGetShaderInfoLog(vertexShaderObject, infoLogLength, &written, log);
 
 				fprintf(gpFile, "Vertex shader compilation log : %s\n", log);
 
@@ -1124,21 +1139,21 @@ int initialize(void)
 
 	glCompileShader(fragmentShaderObject);
 	status = 0;
-	infoLoglength = 0;
+	infoLogLength = 0;
 	log = NULL;
 
 	glGetShaderiv(fragmentShaderObject, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char *)malloc(infoLoglength);
+			log = (char *)malloc(infoLogLength);
 
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(fragmentShaderObject, infoLoglength, &written, log);
+				glGetShaderInfoLog(fragmentShaderObject, infoLogLength, &written, log);
 				fprintf(gpFile, "Fragment shader compilation log : %s \n", log);
 
 				free(log);
@@ -1180,21 +1195,21 @@ int initialize(void)
 	lightingEnabledUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_lightingEnabled");
 
 	status = 0;
-	infoLoglength = 0;
+	infoLogLength = 0;
 	log = NULL;
 
 	glGetProgramiv(SPObj_Iland, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		glGetProgramiv(SPObj_Iland, GL_INFO_LOG_LENGTH, &infoLoglength);
-		if (infoLoglength > 0)
+		glGetProgramiv(SPObj_Iland, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			log = (char *)malloc(infoLoglength);
+			log = (char *)malloc(infoLogLength);
 
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetProgramInfoLog(SPObj_Iland, infoLoglength, &written, log);
+				glGetProgramInfoLog(SPObj_Iland, infoLogLength, &written, log);
 
 				fprintf(gpFile, "Shader Program of Iland Link log : %s\n", log);
 
@@ -1468,7 +1483,7 @@ GLfloat shivlingPosition[] = {
 	glBindVertexArray(0);
 
 	// vao and vbo related code
-	initCylinder(0.8f, centerCoordinates, CIRCLE_POINTS, 0.3f, cylinderData);
+	initCylinder(0.4f, centerCoordinates, CIRCLE_POINTS, 0.15f, cylinderData);
 
 	// vao and vbo related code
 	glGenVertexArrays(1, &vao_cylender_shivling);
@@ -1487,6 +1502,126 @@ GLfloat shivlingPosition[] = {
 			glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+
+	//SUN
+	// Vertex Shader
+	const GLchar* vertexShaderSourceCode_sunrise =
+		"#version 460 core" \
+		"\n" \
+		"in vec4 a_position;" \
+		"uniform mat4 u_modelMatrix;" \
+		"uniform mat4 u_viewMatrix;" \
+		"uniform mat4 u_projectionMatrix;" \
+		"void main(void)" \
+		"{" \
+		"gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * a_position;" \
+		"}";
+	
+	GLuint vertexShaderObject_sunrise = glCreateShader(GL_VERTEX_SHADER);
+
+	glShaderSource(vertexShaderObject_sunrise, 1, (const GLchar**)&vertexShaderSourceCode_sunrise, NULL);
+
+	glCompileShader(vertexShaderObject_sunrise);
+	
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetShaderiv(vertexShaderObject_sunrise, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(vertexShaderObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(sizeof(infoLogLength));
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(vertexShaderObject_sunrise, infoLogLength, &written, log);
+				fprintf(gpFile, "Vertex Shader Compilation Log : %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+	// Fragment Shader
+	const GLchar* fragmentShaderSourceCode_sunrise =
+		"#version 460 core" \
+		"\n" \
+		"uniform vec3 u_changeColor;" \
+		"out vec4 FragColor;" \
+		"void main(void)" \
+		"{" \
+		"FragColor = vec4(u_changeColor, 1.0);" \
+		"}";
+
+	GLuint fragmentShaderObject_sunrise = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(fragmentShaderObject_sunrise, 1, (const GLchar**)&fragmentShaderSourceCode_sunrise, NULL);
+
+	glCompileShader(fragmentShaderObject_sunrise);
+
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetShaderiv(fragmentShaderObject_sunrise, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(fragmentShaderObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(sizeof(infoLogLength));
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(fragmentShaderObject_sunrise, infoLogLength, &written, log);
+				fprintf(gpFile, "Fragment Shader Compiltion Log : %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+	// Shader program object
+	shaderProgramObject_sunrise = glCreateProgram();
+
+	glAttachShader(shaderProgramObject_sunrise, vertexShaderObject_sunrise);
+	glAttachShader(shaderProgramObject_sunrise, fragmentShaderObject_sunrise);
+
+	glBindAttribLocation(shaderProgramObject_sunrise, AMC_ATTRIBUTE_POSITION, "a_position");
+
+	glLinkProgram(shaderProgramObject_sunrise);
+
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetProgramiv(shaderProgramObject_sunrise, GL_LINK_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetProgramiv(shaderProgramObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(sizeof(infoLogLength));
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetProgramInfoLog(shaderProgramObject_sunrise, infoLogLength, &written, log);
+				fprintf(gpFile, "Shader Program Linking Log : %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+	modelMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_modelMatrix");
+	viewMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_viewMatrix");
+	projectionMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_projectionMatrix");
+	changeColorUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_changeColor");
+
 
 	// Depth related changes
 	glClearDepth(1.0f);
@@ -1688,6 +1823,9 @@ void display(void)
 
 	translationMatrix = vmath::translate(0.0f, -3.8f, -5.0f);
 	modelMatrix = translationMatrix;
+
+	rotationMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
+	modelMatrix = modelMatrix * rotationMatrix;
 
 	glUniformMatrix4fv(modelMatrixUniform_water, 1, GL_FALSE, modelMatrix);
 	glUniformMatrix4fv(viewMatrixUniform_water, 1, GL_FALSE, viewMatrix);
@@ -1932,48 +2070,37 @@ void display(void)
 	modelMatrix = pop();
 	// unUse the shader program object
 
-	// Sun
-
+	//Sun
 	push(modelMatrix);
 
-	glUniform1i(lightingEnabledUniform_Iland, 1);
+	glUseProgram(shaderProgramObject_sunrise);
 
-	glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
-	glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
-	glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
-	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
+	// Transformations
+	translationMatrix = vmath::translate(0.0f, yTransition, -100.0f);
 
-	// ambient material
-	MaterialAmbient_Iland[0] = 0.329412f;	 // r
-	MaterialAmbient_Iland[1] = 0.223529f;	 // g
-	MaterialAmbient_Iland[2] = 0.027451f;	 // b
-	MaterialAmbient_Iland[3] = 1.0f; // a
-	glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
+	modelMatrix = translationMatrix;
 
-	// diffuse material
-	MaterialDiffuse_Iland[0] = 0.780392f;	 // r
-	MaterialDiffuse_Iland[1] = 0.568627f;	 // g
-	MaterialDiffuse_Iland[2] = 0.113725f;	 // b
-	MaterialDiffuse_Iland[3] = 1.0f; // a
-	glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
+	scaleMatrix = vmath::scale(10.0f, 10.0f, 10.0f);
+	modelMatrix = translationMatrix * scaleMatrix;
 
-	// specular material
-	MaterialSpecular_Iland[0] = 0.992157f; // r
-	MaterialSpecular_Iland[1] = 0.941176f; // g
-	MaterialSpecular_Iland[2] = 0.807843f; // b
-	MaterialSpecular_Iland[3] = 1.0f; // a
-	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
+	glUniformMatrix4fv(modelMatrixUniform_sunrise, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_sunrise, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_sunrise, 1, GL_FALSE, perspectiveProjectionMatrix);
 
-	// shininess
-	MaterialShininess_Iland = 0.21794872 * 128;
-	glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
+	glUniform3fv(changeColorUniform, 1, colorArray);
+	if(f > 20.0f)
+	{
+		if(i <= 100)
+		{
+			colorArray[0]+=sphereColor_xShift;
+			colorArray[1]+=sphereColor_yShift;
+			colorArray[2]+=sphereColor_zShift;
+			i++;
+			f = 0.0f;
+		}
+	}
+	f+=0.01f;
 
-	modelMatrix *= translate(0.0f, transitionPoint, -100.0f);
-	modelMatrix *= scale(10.0f, 10.0f, 10.0f);
-
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
 
 	// *** bind vao ***
 	glBindVertexArray(gVao_sphere);
@@ -1984,7 +2111,8 @@ void display(void)
 
 	// *** unbind vao ***
 	glBindVertexArray(0);
-	glUniform1i(lightingEnabledUniform_Iland, 0);
+
+	// Unuse the shader program object
 	modelMatrix = pop();
 
 	glUseProgram(0);
@@ -2006,9 +2134,9 @@ void shivling(void)
 	// code
 	push(modelMatrix);
 
-	translationMatrix = translate(0.0f+20.0f, -3.0f+0.5f, -10.0f-3.0f); // glTradslatef replaced by this line
+	translationMatrix = translate(0.0f+20.0f, -3.3f+0.5f, -10.0f-3.0f); // glTradslatef replaced by this line
 	modelMatrix = translationMatrix;
-	modelMatrix *= scale(0.5f, 1.0f, 0.5f);
+	modelMatrix *= scale(0.25f, 0.5f, 0.25f);
 
 	// Transformations
 
@@ -2070,8 +2198,8 @@ void shivling(void)
 	glBindVertexArray(0);
 
 	// draw shivling
-	modelMatrix = translate(1.3f+20.0f, -3.35f+0.5f, -10.0f-3.0f);
-	modelMatrix *= scale(0.6f,0.15f,0.2f);
+	modelMatrix = translate(0.6f+20.0f, -3.45f+0.5f, -10.0f-3.0f);
+	modelMatrix *= scale(0.3f,0.075f,0.1f);
 
 	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
 	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
@@ -2122,8 +2250,8 @@ void shivling(void)
 		materialShininess = 0.25 * 128;
 		glUniform1f(materialShinenessUniform_Iland,materialShininess);
 
-		modelMatrix *= translate(0.0f+20.0f, -4.0f+0.5f, -10.0f-3.0f);
-		modelMatrix *= scale(10.0f, 1.0f, 4.0f);
+		modelMatrix *= translate(3.0f+20.0f, -4.0f+0.5f, -10.0f-3.0f);
+		modelMatrix *= scale(10.0f, 1.0f, 10.0f);
 
 		glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
@@ -2311,6 +2439,9 @@ void update(void)
 	// code
 	// Water
 	time += 0.01f;
+	// code
+	f+=0.05f;
+	yTransition += 0.001f;
 
 	for (int i = 0; i <= TESSEL_Z; i++)
 	{
@@ -2369,14 +2500,33 @@ void update(void)
 				camPosZ = 0.0f;
 				objPosY = 0.0f;
 				transitionPoint = transitionPoint + 0.01f;
-				if(xTransBoat>=14.238535)
+				if(xTransBoat>17.066660 && flag)
 				{
-					xTransBoat = 14.238535;
+					xTransBoat = 17.066660;
 					//xPosLeaf = xPosLeaf + 0.001f;
-					//yPosLeaf = -3.560915 + 0.5f;
+					yPosLeaf = yPosLeaf + 0.001f;
+					if(yPosLeaf >= -2.801979)
+					{
+						flag = FALSE;
+					}
+					
 				}
+
+				if(flag == FALSE && xTransBoat>17.066660)
+					{
+						xTransBoat = 17.066660;
+						yPosLeaf = yPosLeaf - 0.0001f;
+						if(yPosLeaf <= -2.905172)
+						{
+							scene = 4;
+						}
+					}
 			}
 		}
+	}
+	if(scene == 4)
+	{
+		xTransBoat = 17.066660;
 	}
 
 	// Iland
