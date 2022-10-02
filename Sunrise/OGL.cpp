@@ -33,9 +33,8 @@ FILE *gpFile = NULL;
 BOOL gbActiveWindow = FALSE;
 
 //Programble pipelibe
-GLuint shaderProgramObject;
-
-
+GLuint shaderProgramObject_cubemap;
+GLuint shaderProgramObject_sunrise;
 
 
 float sphere_vertices[1146];
@@ -54,15 +53,24 @@ enum
 	AMC_ATTRIBUTE_TEXTURE0,
 };
 
+// cubemap variables
+GLuint vao_cube;
+GLuint vbo_cube_position;
+GLuint vbo_cube_color;
+
+// sunrise variables
 GLuint gVao_sphere;
 GLuint gVbo_sphere_position;
 GLuint gVbo_sphere_normal;
 GLuint gVbo_sphere_element;
 
 //GLuint mvpMatrixUniform;
-GLuint modelMatrixUniform;
-GLuint viewMatrixlUniform;
-GLuint projectionMatrixUniform;
+GLuint modelMatrixUniform_cubemap;
+GLuint viewMatrixlUniform_cubemap;
+GLuint modelMatrixUniform_sunrise;
+GLuint viewMatrixlUniform_sunrise;
+GLuint projectionMatrixUniform_cubemap;
+GLuint projectionMatrixUniform_sunrise;
 
 GLuint laUniform;	//light ambient
 GLuint ldUniform;	//light diffuse
@@ -393,12 +401,229 @@ int initialize(void)
 	//Print OpenGLInfor
 	printGLInfo();
 
+
 	//-----------------------------------------------------------------------------------------------
-	//Vertex Shader
+	//Vertex Shader for cubemap 
+	//-----------------------------------------------------------------------------------------------
+
+	// Vertex Shader
+	const GLchar* vertexShaderSourceCode_cubemap =
+		"#version 460 core" \
+		"\n" \
+		"in vec4 a_position;" \
+		"in vec4 a_color;" \
+		"uniform mat4 u_modelMatrix;" \
+		"uniform mat4 u_viewMatrix;" \
+		"uniform mat4 u_projectionMatrix;" \
+		"out vec4 a_color_out;" \
+		"void main(void)" \
+		"{" \
+		"gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * a_position;" \
+		"a_color_out = a_color;" \
+		"}";
+
+	GLuint vertexShaderObject_cubemap = glCreateShader(GL_VERTEX_SHADER);
+
+	glShaderSource(vertexShaderObject_cubemap, 1, (const GLchar**)&vertexShaderSourceCode_cubemap, NULL);
+
+	glCompileShader(vertexShaderObject_cubemap);
+	
+	GLint status;
+	GLint infoLogLength;
+	char* log = NULL;
+
+	glGetShaderiv(vertexShaderObject_cubemap, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(vertexShaderObject_cubemap, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(sizeof(infoLogLength));
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(vertexShaderObject_cubemap, infoLogLength, &written, log);
+				fprintf(gpFile, "Vertex Shader Compilation Log : %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+
+	// Fragment Shader
+	const GLchar* fragmentShaderSourceCode_cubemap =
+		"#version 460 core" \
+		"\n" \
+		"in vec4 a_color_out;" \
+		"out vec4 FragColor;" \
+		"int i = 0;" \
+		"void main(void)" \
+		"{" \
+			"FragColor = a_color_out;" \
+		"}";
+
+	GLuint fragmentShaderObject_cubemap = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(fragmentShaderObject_cubemap, 1, (const GLchar**)&fragmentShaderSourceCode_cubemap, NULL);
+
+	glCompileShader(fragmentShaderObject_cubemap);
+
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetShaderiv(fragmentShaderObject_cubemap, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(fragmentShaderObject_cubemap, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(sizeof(infoLogLength));
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(fragmentShaderObject_cubemap, infoLogLength, &written, log);
+				fprintf(gpFile, "Fragment Shader Compiltion Log : %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+
+	// Shader program object
+	shaderProgramObject_cubemap = glCreateProgram();
+
+	glAttachShader(shaderProgramObject_cubemap, vertexShaderObject_cubemap);
+	glAttachShader(shaderProgramObject_cubemap, fragmentShaderObject_cubemap);
+
+	glBindAttribLocation(shaderProgramObject_cubemap, AMC_ATTRIBUTE_POSITION, "a_position");
+	glBindAttribLocation(shaderProgramObject_cubemap, AMC_ATTRIBUTE_COLOR, "a_color");
+
+	glLinkProgram(shaderProgramObject_cubemap);
+
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetProgramiv(shaderProgramObject_cubemap, GL_LINK_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetProgramiv(shaderProgramObject_cubemap, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(sizeof(infoLogLength));
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetProgramInfoLog(shaderProgramObject_cubemap, infoLogLength, &written, log);
+				fprintf(gpFile, "Shader Program Linking Log : %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+	modelMatrixUniform_cubemap = glGetUniformLocation(shaderProgramObject_cubemap, "u_modelMatrix");
+	viewMatrixlUniform_cubemap = glGetUniformLocation(shaderProgramObject_cubemap, "u_viewMatrix");
+	projectionMatrixUniform_cubemap = glGetUniformLocation(shaderProgramObject_cubemap, "u_projectionMatrix");
+
+	// Declaration Of Vertex Data Arrays
+	const GLfloat cubePosition[] =
+	{
+	1.0f, 1.0f, -1.0f,
+	-1.0f, 1.0f, -1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, -1.0f,
+   -1.0f, -1.0f, -1.0f,
+   -1.0f, -1.0f,  1.0f,
+	1.0f, -1.0f,  1.0f,
+	1.0f, 1.0f, 1.0f,
+   -1.0f, 1.0f, 1.0f,
+   -1.0f, -1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f,
+	1.0f, 1.0f, -1.0f,
+   -1.0f, 1.0f, -1.0f,
+   -1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f,
+	1.0f, 1.0f, -1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f,
+	1.0f, -1.0f, -1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f, 1.0f,
+	};
+
+	GLfloat cubeColor[] =
+	{
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	0.9f, 0.3f, 0.0f,
+	};
+
+	// vao and vbo related code for cubemap
+	
+	// vao cube
+	glGenVertexArrays(1, &vao_cube);
+	glBindVertexArray(vao_cube);
+
+	// vbo for position
+	glGenBuffers(1, &vbo_cube_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_position);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubePosition), cubePosition, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// vbo for color 
+	//glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 0.0f, 0.0f, 1.0f);
+	glGenBuffers(1, &vbo_cube_color);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_color);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColor), cubeColor, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_COLOR);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// vao unbinding
+	glBindVertexArray(0);
+
+
+
+
+
+	//-----------------------------------------------------------------------------------------------
+	//Vertex Shader for sunrise 
 	//-----------------------------------------------------------------------------------------------
 
 	//1.Vertex Shader code
-	const GLchar* vertexShaderSourceCode =
+	const GLchar* vertexShaderSourceCode_sunrise =
 		"#version 460 core" \
 		"\n" \
 		"in vec4 a_position;" \
@@ -425,32 +650,32 @@ int initialize(void)
 		"}";
 
 	//2.Create Shader object
-	GLuint vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
+	GLuint vertexShaderObject_sunrise = glCreateShader(GL_VERTEX_SHADER);
 	
 	//3.Giving shader code to shader object
-	glShaderSource(vertexShaderObject, 1, (const GLchar**)&vertexShaderSourceCode, NULL);
+	glShaderSource(vertexShaderObject_sunrise, 1, (const GLchar**)&vertexShaderSourceCode_sunrise, NULL);
 
 	//4. compile shader
-	glCompileShader(vertexShaderObject);
+	glCompileShader(vertexShaderObject_sunrise);
 
 
 	//Error Checking
-	GLint status;
-	GLint infoLogLength;
-	char* log = NULL;
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
 
-	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);
+	glGetShaderiv(vertexShaderObject_sunrise, GL_COMPILE_STATUS, &status);
 
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		glGetShaderiv(vertexShaderObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
 			log = (char*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(vertexShaderObject, infoLogLength, &written, log);
+				glGetShaderInfoLog(vertexShaderObject_sunrise, infoLogLength, &written, log);
 				fprintf(gpFile, "Vertex Shader Compilation Log : %s\n", log);
 				free(log);
 				uninitialize();
@@ -463,7 +688,7 @@ int initialize(void)
 	//Fragment Shader
 	//-----------------------------------------------------------------------------------------------
 
-	const GLchar* fragmentShaderSourceCode =
+	const GLchar* fragmentShaderSourceCode_sunrise =
 		"#version 460 core" \
 		"\n" \
 		"in vec3 transformedNormals;" \
@@ -501,30 +726,30 @@ int initialize(void)
 		"}";
 
 	//2.Create Shader object
-	GLuint fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint fragmentShaderObject_sunrise = glCreateShader(GL_FRAGMENT_SHADER);
 
 	//3.Giving shader code to shader object
-	glShaderSource(fragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
+	glShaderSource(fragmentShaderObject_sunrise, 1, (const GLchar**)&fragmentShaderSourceCode_sunrise, NULL);
 
 	//4. compile shader
-	glCompileShader(fragmentShaderObject);
+	glCompileShader(fragmentShaderObject_sunrise);
 
 	status = 0;
 	infoLogLength = 0;
 	log = NULL;
 
-	glGetShaderiv(fragmentShaderObject, GL_COMPILE_STATUS, &status);
+	glGetShaderiv(fragmentShaderObject_sunrise, GL_COMPILE_STATUS, &status);
 
 	if (status == GL_FALSE)
 	{
-		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		glGetShaderiv(fragmentShaderObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
 			log = (char*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetShaderInfoLog(fragmentShaderObject, infoLogLength, &written, log);
+				glGetShaderInfoLog(fragmentShaderObject_sunrise, infoLogLength, &written, log);
 				fprintf(gpFile, "Fragment Shader Compilation Log : %s\n", log);
 				free(log);
 				uninitialize();
@@ -538,35 +763,35 @@ int initialize(void)
 	//-----------------------------------------------------------------------------------------------
 	
 	//create object
-	shaderProgramObject = glCreateProgram();
+	shaderProgramObject_sunrise = glCreateProgram();
 
 	//Attach program
-	glAttachShader(shaderProgramObject, vertexShaderObject);
-	glAttachShader(shaderProgramObject, fragmentShaderObject);
+	glAttachShader(shaderProgramObject_sunrise, vertexShaderObject_sunrise);
+	glAttachShader(shaderProgramObject_sunrise, fragmentShaderObject_sunrise);
 
 	//Ortho->A->1
-	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_POSITION, "a_position");
-	glBindAttribLocation(shaderProgramObject, AMC_ATTRIBUTE_NORMAL, "a_normal");
+	glBindAttribLocation(shaderProgramObject_sunrise, AMC_ATTRIBUTE_POSITION, "a_position");
+	glBindAttribLocation(shaderProgramObject_sunrise, AMC_ATTRIBUTE_NORMAL, "a_normal");
 
 	//Link
-	glLinkProgram(shaderProgramObject);
+	glLinkProgram(shaderProgramObject_sunrise);
 
 	status = 0;
 	infoLogLength = 0;
 	log = NULL;
 
-	glGetProgramiv(shaderProgramObject, GL_LINK_STATUS, &status);
+	glGetProgramiv(shaderProgramObject_sunrise, GL_LINK_STATUS, &status);
 
 	if (status == GL_FALSE)
 	{
-		glGetProgramiv(shaderProgramObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		glGetProgramiv(shaderProgramObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
 			log = (char*)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
-				glGetProgramInfoLog(shaderProgramObject, infoLogLength, &written, log);
+				glGetProgramInfoLog(shaderProgramObject_sunrise, infoLogLength, &written, log);
 				fprintf(gpFile, "Shader Program Link Log : %s\n", log);
 
 				free(log);
@@ -577,22 +802,22 @@ int initialize(void)
 
 	//Ortho->A->2 post-linking
 
-	//mvpMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_mvpMatrix");
-	modelMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_modelMatrix");
-	viewMatrixlUniform = glGetUniformLocation(shaderProgramObject, "u_viewMatrix");
-	projectionMatrixUniform = glGetUniformLocation(shaderProgramObject, "u_projectionMatrix");
+	//mvpMatrixUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_mvpMatrix");
+	modelMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_modelMatrix");
+	viewMatrixlUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_viewMatrix");
+	projectionMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_projectionMatrix");
 
-	laUniform = glGetUniformLocation(shaderProgramObject, "u_lA");
-	ldUniform = glGetUniformLocation(shaderProgramObject, "u_lD");
-	lsUniform = glGetUniformLocation(shaderProgramObject, "u_lS");
-	lightPositionUniform = glGetUniformLocation(shaderProgramObject, "u_lightPosition");
+	laUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_lA");
+	ldUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_lD");
+	lsUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_lS");
+	lightPositionUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_lightPosition");
 
-	kaUniform = glGetUniformLocation(shaderProgramObject, "u_kA");
-	kdUniform = glGetUniformLocation(shaderProgramObject, "u_kD");
-	ksUniform = glGetUniformLocation(shaderProgramObject, "u_kS");
-	materialShininessUniform = glGetUniformLocation(shaderProgramObject, "u_materialShininess");
+	kaUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_kA");
+	kdUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_kD");
+	ksUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_kS");
+	materialShininessUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_materialShininess");
 
-	lightingEnabledUniform = glGetUniformLocation(shaderProgramObject, "u_lightingEnabled");
+	lightingEnabledUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_lightingEnabled");
 	
 	//Decalration of vertex array
 	
@@ -693,8 +918,11 @@ void display(void)
 	//code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+
+	// code for drawing cubemap
+
 	//use the shader program object
-	glUseProgram(shaderProgramObject);
+	glUseProgram(shaderProgramObject_cubemap);
 
 	//Here should be the magic code of 12 lakh lines
 
@@ -702,15 +930,53 @@ void display(void)
 	//Transformation
 	mat4 modelMatrix = mat4::identity();
 	mat4 viewMatrix = mat4::identity();
-
+	mat4 scaleMatrix = mat4::identity();
 	mat4 translationMatrix = mat4::identity();
 
-	translationMatrix = vmath::translate(0.0f, transitionPoint, -4.0f); //GLTranslatef is replaced by this line
-	modelMatrix = translationMatrix;
+	translationMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
+	scaleMatrix = vmath::scale(2.0f, 2.0f, 2.0f);
+	modelMatrix = translationMatrix * scaleMatrix;
+	
+	glUniformMatrix4fv(modelMatrixUniform_cubemap, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixlUniform_cubemap, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_cubemap, 1, GL_FALSE, perspectiveProjectionMatrix);
 
-	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixlUniform, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glBindVertexArray(vao_cube);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
+
+	glBindVertexArray(0);
+
+	// Unuse the shader program object
+	glUseProgram(0);
+
+ // -------------------------
+
+
+	//use the shader program object
+	glUseProgram(shaderProgramObject_sunrise);
+
+	//Here should be the magic code of 12 lakh lines
+
+	//Un-Use the shader program object
+	//Transformation
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+	translationMatrix = mat4::identity();
+	
+	translationMatrix = vmath::translate(0.0f, transitionPoint, -2.0f); //GLTranslatef is replaced by this line
+	scaleMatrix = vmath::scale(0.5f, 0.5f, 0.5f);
+	modelMatrix = translationMatrix * scaleMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_sunrise, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixlUniform_sunrise, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_sunrise, 1, GL_FALSE, perspectiveProjectionMatrix);
 
 	if (bLight == TRUE)
 	{
@@ -791,20 +1057,20 @@ void uninitialize(void)
 
 
 	//Shader un-initialization
-	if (shaderProgramObject)
+	if (shaderProgramObject_cubemap)
 	{
 		GLsizei numAttachedShaders;
-		glUseProgram(shaderProgramObject);
-		glGetProgramiv(shaderProgramObject, GL_ATTACHED_SHADERS, &numAttachedShaders);
+		glUseProgram(shaderProgramObject_cubemap);
+		glGetProgramiv(shaderProgramObject_cubemap, GL_ATTACHED_SHADERS, &numAttachedShaders);
 
 		GLuint* shaderObjects = NULL;
 		shaderObjects = (GLuint*)malloc(numAttachedShaders * sizeof(GLuint));
 		
-		glGetAttachedShaders(shaderProgramObject, numAttachedShaders, &numAttachedShaders, shaderObjects);
+		glGetAttachedShaders(shaderProgramObject_cubemap, numAttachedShaders, &numAttachedShaders, shaderObjects);
 
 		for (GLsizei i = 0; i < numAttachedShaders; i++)
 		{
-			glDetachShader(shaderProgramObject, shaderObjects[i]);
+			glDetachShader(shaderProgramObject_cubemap, shaderObjects[i]);
 			glDeleteShader(shaderObjects[i]);
 			shaderObjects[i] = 0;
 		}
@@ -812,8 +1078,8 @@ void uninitialize(void)
 		free(shaderObjects);
 		shaderObjects = NULL;
 		glUseProgram(0);
-		glDeleteProgram(shaderProgramObject);
-		shaderProgramObject = 0;
+		glDeleteProgram(shaderProgramObject_cubemap);
+		shaderProgramObject_cubemap = 0;
 	}
 	
 	if (wglGetCurrentContext() == ghrc)
