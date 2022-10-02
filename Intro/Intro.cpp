@@ -94,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
     iVertRes = GetSystemMetrics(SM_CYSCREEN);
 
     // create the window
-    hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, "Intro",
+    hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Intro"),
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
         iHorzRes == 0 ? CW_USEDEFAULT : (iHorzRes - WIN_WIDTH) / 2,
         iVertRes == 0 ? CW_USEDEFAULT : (iVertRes - WIN_HEIGHT) / 2,
