@@ -1,0 +1,7 @@
+#include <Windows.h>
+#include "OGL.h"
+
+MYICON ICON selfcare.ico
+
+IDBITMAP_BIRTHDAY BITMAP birthday.bmp
+
