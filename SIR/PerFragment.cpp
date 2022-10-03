@@ -18,6 +18,7 @@ using namespace vmath;
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "OpenGL32.lib")
 #pragma comment(lib, "Sphere.lib")
+#pragma comment(lib,"Winmm.lib")
 
 // Macro
 #define WIN_WIDTH 800
@@ -314,6 +315,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreIntance, LPSTR lpszCmdLine
 	ShowWindow(hwnd, iCmdShow);
 	SetForegroundWindow(hwnd); // use hwnd here since ghwnd is use for outer functions
 	SetFocus(hwnd);
+
+	//Background Music
+	if (PlaySound(MAKEINTRESOURCE(MYSOUND), GetModuleHandle(NULL), SND_RESOURCE | SND_ASYNC) == FALSE)
+		MessageBoxA(hwnd, "Unable to play audio", "Error Message", MB_OK | MB_ICONERROR);
 
 	// Initialize
 	iRateVal = initialize();
@@ -1822,7 +1827,7 @@ int initialize(void)
 	// SUN
 	//  Vertex Shader
 	const GLchar *vertexShaderSourceCode_sunrise =
-		"#version 460 core"
+		"#version 440 core"
 		"\n"
 		"in vec4 a_position;"
 		"uniform mat4 u_modelMatrix;"
@@ -1863,7 +1868,7 @@ int initialize(void)
 
 	// Fragment Shader
 	const GLchar *fragmentShaderSourceCode_sunrise =
-		"#version 460 core"
+		"#version 440 core"
 		"\n"
 		"uniform vec3 u_changeColor;"
 		"out vec4 FragColor;"
@@ -2157,7 +2162,7 @@ void display(void)
 		introFunc();
 	}
 
-	if (end)
+	if (end==TRUE)
 	{
 		endfunc();
 	}
@@ -2412,6 +2417,38 @@ void display(void)
 		push(modelMatrix);
 		modelMatrix *= translate(xPosLeaf, yPosLeaf, zPosLeaf);
 		modelMatrix *= rotate(35.0f, 0.0f, 0.0f, 1.0f);
+		glUniform1i(lightingEnabledUniform_Iland, 1);
+
+		glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
+		glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
+		glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
+		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
+
+		// ambient material
+		MaterialAmbient_Iland[0] = 0.0;	 // r
+		MaterialAmbient_Iland[1] = 0.0;	 // g
+		MaterialAmbient_Iland[2] = 0.0;	 // b
+		MaterialAmbient_Iland[3] = 1.0f; // a
+		glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
+
+		// diffuse material
+		MaterialDiffuse_Iland[0] = 0.5;	 // r
+		MaterialDiffuse_Iland[1] = 0.5;	 // g
+		MaterialDiffuse_Iland[2] = 0.0;	 // b
+		MaterialDiffuse_Iland[3] = 1.0f; // a
+		glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
+
+		// specular material
+		MaterialSpecular_Iland[0] = 0.60; // r
+		MaterialSpecular_Iland[1] = 0.60; // g
+		MaterialSpecular_Iland[2] = 0.50; // b
+		MaterialSpecular_Iland[3] = 1.0f; // a
+		glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
+
+		// shininess
+		MaterialShininess_Iland = 0.25 * 128;
+		glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
+		
 		drawLeaf();
 		modelMatrix = pop();
 		// unUse the shader program object
@@ -3011,6 +3048,7 @@ void update(void)
 		if (timmer >= 5.0f)
 		{
 			intro = FALSE;
+			timmer = 0.0f;
 		}
 	}
 	if (!intro)
@@ -3087,17 +3125,17 @@ void update(void)
 						if (yPosLeaf >= -2.801979)
 						{
 							flag = FALSE;
+
 						}
 					}
 
-					if (flag == FALSE && xTransBoat > 17.066660)
+					if (flag == FALSE && xTransBoat >= 17.066660)
 					{
 						xTransBoat = 17.066660;
 						yPosLeaf = yPosLeaf - 0.0001f;
 						if (yPosLeaf <= -2.905172)
 						{
 							scene = 4;
-							timmer = 0.0f;
 						}
 					}
 				}
