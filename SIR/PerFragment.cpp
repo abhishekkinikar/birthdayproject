@@ -153,6 +153,31 @@ GLfloat xPosLeaf = -1.1f;
 GLfloat yPosLeaf = -0.1f;
 GLfloat zPosLeaf = -11.0f;
 
+// intro
+
+GLfloat angleSaturn = 0.0f, angleAstro = 0.0f, angleMedi = 0.0f, angleComp = 0.0f, angleCfg = 0.0f, speed = 0.55f;
+BOOL astro = FALSE, medi = FALSE, comp = FALSE, cfg = FALSE;
+
+GLuint VAO_intro;
+GLuint vbo_intro_position;
+GLuint vbo_intro_texcoord;
+
+GLuint VAO_intro_back;
+GLuint VBO_intro_back;
+
+float timmer = 0.0f;
+
+// end
+
+GLuint texture_Birthday;
+GLuint VAO_Birthday;
+GLuint VBO_Birthday_position;
+GLuint VBO_Birthday_texcoord;
+
+BOOL end = FALSE;
+
+GLuint texture_saturn, texture_astro, texture_medi, texture_comp, texture_cgp;
+
 mat4 matrixStack[16];
 int top = 0;
 float zTranslate = 5.0f;
@@ -160,6 +185,7 @@ float xRotate = 0.0f;
 float cameraRadius = 30.0f;
 int scene = 1;
 BOOL flag = TRUE;
+BOOL intro = TRUE;
 
 GLfloat camPosZ = 0.0f;
 GLfloat camPosX = 0.0f;
@@ -185,7 +211,7 @@ GLfloat MaterialDiffuse_Iland[4];
 GLfloat MaterialSpecular_Iland[4];
 GLfloat MaterialShininess_Iland;
 
-//Sun 
+// Sun
 
 GLfloat transitionPoint = -9.0f;
 GLuint shaderProgramObject_sunrise;
@@ -202,8 +228,12 @@ GLfloat sphereColor_xShift = 0.1f / 100.0f;
 GLfloat sphereColor_yShift = 0.9f / 100.0f;
 GLfloat sphereColor_zShift = 0.3f / 100.0f;
 
-GLfloat colorArray[] = {0.9f, 0.1f, 0.0f,};
-//Shivlinga
+GLfloat colorArray[] = {
+	0.9f,
+	0.1f,
+	0.0f,
+};
+// Shivlinga
 
 GLuint vao_shivling;
 
@@ -425,7 +455,7 @@ int initialize(void)
 	void resize(int width, int height);
 	void initializeCircle(GLfloat radius, GLfloat * centre, int countOfPoints, GLfloat *circleVertices);			   // Abhishek
 	void initCylinder(GLfloat radius, GLfloat * center, int countOfPoints, GLfloat height, GLfloat *cylinderVertices); // Abhishek
-	BOOL loadGLTexture(GLuint* texture, TCHAR imageResourceId[]);
+	BOOL loadGLTexture(GLuint * texture, TCHAR imageResourceId[]);
 
 	// veriable declarations
 	PIXELFORMATDESCRIPTOR pfd;
@@ -644,41 +674,41 @@ int initialize(void)
 	glBindVertexArray(0);
 
 	// Boat
-	//Vertex Shader
-	//Source code
-	const GLchar* vertexShaderSourceCode_boat =
-		"#version 440 core" \
-		"\n" \
-		"in vec4 a_position;" \
-		"in vec2 a_texcoord;" \
-		"uniform mat4 u_modelMatrix;" \
-		"uniform mat4 u_viewMatrix;" \
-		"uniform mat4 u_projectionMatrix;" \
-		"uniform mat4 u_mvpMatrix;" \
-		"out vec2 a_texcoord_out;" \
-		"void main(void)" \
-		"{" \
-		"gl_Position = u_projectionMatrix * u_viewMatrix* u_modelMatrix * a_position;" \
-		"a_texcoord_out = a_texcoord;" 
+	// Vertex Shader
+	// Source code
+	const GLchar *vertexShaderSourceCode_boat =
+		"#version 440 core"
+		"\n"
+		"in vec4 a_position;"
+		"in vec2 a_texcoord;"
+		"uniform mat4 u_modelMatrix;"
+		"uniform mat4 u_viewMatrix;"
+		"uniform mat4 u_projectionMatrix;"
+		"uniform mat4 u_mvpMatrix;"
+		"out vec2 a_texcoord_out;"
+		"void main(void)"
+		"{"
+		"gl_Position = u_projectionMatrix * u_viewMatrix* u_modelMatrix * a_position;"
+		"a_texcoord_out = a_texcoord;"
 		"}";
-	//Object create kel
+	// Object create kel
 	vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
-	//Tyala code dila
-	glShaderSource(vertexShaderObject, 1, (const GLchar **)&vertexShaderSourceCode_boat, NULL); 
-	//Compile kela ithe
+	// Tyala code dila
+	glShaderSource(vertexShaderObject, 1, (const GLchar **)&vertexShaderSourceCode_boat, NULL);
+	// Compile kela ithe
 	glCompileShader(vertexShaderObject);
-	//Error Checking
+	// Error Checking
 	status = 0;
 	infoLogLength = 0;
 	log = NULL;
 
-	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);//
+	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status); //
 	if (status == GL_FALSE)
 	{
 		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
-			log = (char*)malloc(infoLogLength);
+			log = (char *)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
@@ -689,24 +719,24 @@ int initialize(void)
 			}
 		}
 	}
-	
-	//fragment Shader
-	const GLchar* fragmentShaderSourceCode_boat =
-		"#version 440 core" \
-		"\n" \
-		"in vec2 a_texcoord_out;" \
-		"uniform sampler2D u_textureSampler;" \
-		"out vec4 FragColor;" \
-		"void main(void)" \
-		"{" \
-		"FragColor = texture(u_textureSampler, a_texcoord_out);" \
+
+	// fragment Shader
+	const GLchar *fragmentShaderSourceCode_boat =
+		"#version 440 core"
+		"\n"
+		"in vec2 a_texcoord_out;"
+		"uniform sampler2D u_textureSampler;"
+		"out vec4 FragColor;"
+		"void main(void)"
+		"{"
+		"FragColor = texture(u_textureSampler, a_texcoord_out);"
 		"}";
 
-	//Object creation
+	// Object creation
 	fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
-	//Tyala 
-	glShaderSource(fragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode_boat, NULL); 
-	//Compile
+	// Tyala
+	glShaderSource(fragmentShaderObject, 1, (const GLchar **)&fragmentShaderSourceCode_boat, NULL);
+	// Compile
 	glCompileShader(fragmentShaderObject);
 
 	status = 0;
@@ -719,7 +749,7 @@ int initialize(void)
 		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
-			log = (CHAR*)malloc(infoLogLength);
+			log = (CHAR *)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
@@ -731,17 +761,17 @@ int initialize(void)
 		}
 	}
 
-	//Shader program Object
-	//Create shader object
+	// Shader program Object
+	// Create shader object
 	SPObj_Boat = glCreateProgram();
-	//Attach shader object
+	// Attach shader object
 	glAttachShader(SPObj_Boat, vertexShaderObject);
 	glAttachShader(SPObj_Boat, fragmentShaderObject);
 
 	//
-	glBindAttribLocation(SPObj_Boat, AMC_ATTRIBUTE_POSITION, "a_position"); 
-	glBindAttribLocation(SPObj_Boat, AMC_ATTRIBUTE_TEXTURE0, "a_texcoord");   
-	//Link the shader program object
+	glBindAttribLocation(SPObj_Boat, AMC_ATTRIBUTE_POSITION, "a_position");
+	glBindAttribLocation(SPObj_Boat, AMC_ATTRIBUTE_TEXTURE0, "a_texcoord");
+	// Link the shader program object
 	glLinkProgram(SPObj_Boat);
 
 	// linking che Error
@@ -750,16 +780,16 @@ int initialize(void)
 	log = NULL;
 
 	modelMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_modelMatrix");
-	viewMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_viewMatrix"); // ***Andhar***
+	viewMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_viewMatrix");			   // ***Andhar***
 	projectionMatrixUniform_boat = glGetUniformLocation(SPObj_Boat, "u_projectionMatrix"); // ***Andhar***
-	TSU_boat = glGetUniformLocation(SPObj_Boat, "u_textureSampler"); 
+	TSU_boat = glGetUniformLocation(SPObj_Boat, "u_textureSampler");
 	glGetProgramiv(SPObj_Boat, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
 		glGetProgramiv(SPObj_Boat, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength >= 0)
 		{
-			log = (CHAR*)malloc(infoLogLength);
+			log = (CHAR *)malloc(infoLogLength);
 			if (log != NULL)
 			{
 				GLsizei written;
@@ -770,7 +800,7 @@ int initialize(void)
 			}
 		}
 	}
-	//Declaration of vertex data arrays
+	// Declaration of vertex data arrays
 	/*const GLfloat pyramidPosition[] =
 	{
 		// front
@@ -815,149 +845,235 @@ int initialize(void)
 	};*/
 
 	const GLfloat cubePosition[] =
-	{
-		//top
-		/*1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,*/
+		{
+			// top
+			/*1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,*/
 
-		// bottom
-		0.5f, -0.5f, -1.0f,
-	   -0.5f, -0.5f, -1.0f,
-	   -0.5f, -0.5f,  1.0f,
-		0.5f, -0.5f,  1.0f,
+			// bottom
+			0.5f,
+			-0.5f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			1.0f,
 
-		// front
-		1.0f, 1.0f, 1.0f,
-	   -1.0f, 1.0f, 1.0f,
-	   -0.5f, -0.5f, 1.0f,
-		0.5f, -0.5f, 1.0f,
+			// front
+			1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			-0.5f,
+			-0.5f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			1.0f,
 
-		// back
-		1.0f, 1.0f, -1.0f,
-	   -1.0f, 1.0f, -1.0f,
-	   -0.5f, -0.5f, -1.0f,
-		0.5f, -0.5f, -1.0f,
+			// back
+			1.0f,
+			1.0f,
+			-1.0f,
+			-1.0f,
+			1.0f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			-1.0f,
+			0.5f,
+			-0.5f,
+			-1.0f,
 
-		// right
-		1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, 1.0f,
-		0.5f, -0.5f, 1.0f,
-		0.5f, -0.5f, -1.0f,
+			// right
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			-1.0f,
 
-		// left
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-0.5f, -0.5f, -1.0f,
-		-0.5f, -0.5f, 1.0f,
-	};
+			// left
+			-1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			1.0f,
+		};
 
 	const GLfloat cubeTexcoord[] =
-	{
-		0.0f, 0.0f, 
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		{
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
-	};
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f};
 
-	//new cube
+	// new cube
 	const GLfloat newcubePosition[] =
-	{
-		//top
-		1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
+		{
+			// top
+			1.0f,
+			1.0f,
+			-1.0f,
+			-1.0f,
+			1.0f,
+			-1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
 
-		// bottom
-		0.5f, -0.5f, -1.0f,
-	   -0.5f, -0.5f, -1.0f,
-	   -0.5f, -0.5f,  1.0f,
-		0.5f, -0.5f,  1.0f,
+			// bottom
+			0.5f,
+			-0.5f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			1.0f,
 
-		// front
-		1.0f, 1.0f, 1.0f,
-	   -1.0f, 1.0f, 1.0f,
-	   -0.5f, -0.5f, 1.0f,
-		0.5f, -0.5f, 1.0f,
+			// front
+			1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			-0.5f,
+			-0.5f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			1.0f,
 
-		// back
-		1.0f, 1.0f, -1.0f,
-	   -1.0f, 1.0f, -1.0f,
-	   -0.5f, -0.5f, -1.0f,
-		0.5f, -0.5f, -1.0f,
+			// back
+			1.0f,
+			1.0f,
+			-1.0f,
+			-1.0f,
+			1.0f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			-1.0f,
+			0.5f,
+			-0.5f,
+			-1.0f,
 
-		// right
-		1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, 1.0f,
-		0.5f, -0.5f, 1.0f,
-		0.5f, -0.5f, -1.0f,
+			// right
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			-1.0f,
 
-		// left
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-0.5f, -0.5f, -1.0f,
-		-0.5f, -0.5f, 1.0f,
-	};
+			// left
+			-1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			-1.0f,
+			-0.5f,
+			-0.5f,
+			1.0f,
+		};
 
 	const GLfloat newcubeTexcoord[] =
-	{
-		0.0f, 0.0f, 
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		{
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
 
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
-	};
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f};
 	/*//pyramid
 	//VAO and VBO related code
 	//VAO
@@ -982,12 +1098,12 @@ int initialize(void)
 
 	glBindVertexArray(0);*/
 
-	//cube
-	//VAO and VBO related code
-	//VAO
-	glGenVertexArrays(1, &VAO_BOAT); //5th step
+	// cube
+	// VAO and VBO related code
+	// VAO
+	glGenVertexArrays(1, &VAO_BOAT); // 5th step
 	glBindVertexArray(VAO_BOAT);
-	//VBO for position
+	// VBO for position
 	glGenBuffers(1, &VBO_boat_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_position);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubePosition), cubePosition, GL_STATIC_DRAW);
@@ -996,23 +1112,23 @@ int initialize(void)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//VBO for texture
+	// VBO for texture
 	glGenBuffers(1, &VBO_boat_texcoord);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_texcoord);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeTexcoord), cubeTexcoord, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL); 
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
 
-	//new cube 
-	//cube
-	//VAO and VBO related code
-	//VAO
-	glGenVertexArrays(1, &VAO_newboat); //5th step
+	// new cube
+	// cube
+	// VAO and VBO related code
+	// VAO
+	glGenVertexArrays(1, &VAO_newboat); // 5th step
 	glBindVertexArray(VAO_newboat);
-	//VBO for position
+	// VBO for position
 	glGenBuffers(1, &VBO_boat_newposition);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_newposition);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(newcubePosition), newcubePosition, GL_STATIC_DRAW);
@@ -1021,16 +1137,168 @@ int initialize(void)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//VBO for texture
+	// VBO for texture
 	glGenBuffers(1, &VBO_boat_newtexcoord);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_boat_newtexcoord);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(newcubeTexcoord), newcubeTexcoord, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL); 
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
-	
+
+	// intro
+	const GLfloat introPosition[] =
+		{
+			// top face
+			1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+
+			// bottom face
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+
+			// front face
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+
+			// back face
+			-1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+
+			// right face
+			1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, -1.0f,
+
+			// left face
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, 1.0f};
+
+	const GLfloat introTexcoords[] =
+		{
+			0.0, 1.0,
+			1.0, 1.0,
+			1.0, 0.0,
+			0.0, 0.0};
+
+	// VAO and VBO related code for cube
+	glGenVertexArrays(1, &VAO_intro);
+	glBindVertexArray(VAO_intro);
+
+	glGenBuffers(1, &vbo_intro_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_intro_position);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(introPosition), introPosition, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &vbo_intro_texcoord);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_intro_texcoord);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(introTexcoords), introTexcoords, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(vbo_intro_position);
+
+	const GLfloat quadPosition_back[] =
+		{
+			// front
+			1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+		};
+
+	glGenVertexArrays(1, &VAO_intro_back); // 5th step
+	glBindVertexArray(VAO_intro_back);
+	// VBO for position
+	glGenBuffers(1, &VBO_intro_back);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_intro_back);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadPosition_back), quadPosition_back, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+	glVertexAttrib3f(AMC_ATTRIBUTE_COLOR, 0.0f, 0.0f, 0.0f);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	// end
+	const GLfloat quadPosition_end[] =
+		{
+			// front
+			1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			-1.0f,
+			1.0f,
+			1.0f,
+			-1.0f,
+			1.0f,
+		};
+
+	const GLfloat quadTexcoord_end[] =
+		{
+			0.0f,
+			0.0f,
+			1.0f,
+			0.0f,
+			1.0f,
+			1.0f,
+			0.0f,
+			1.0f,
+		};
+
+	// VAO and VBO related code
+	// VAO
+	glGenVertexArrays(1, &VAO_Birthday); // 5th step
+	glBindVertexArray(VAO_Birthday);
+	// VBO for position
+	glGenBuffers(1, &VBO_Birthday_position);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_Birthday_position);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadPosition_end), quadPosition_end, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// VBO for texture
+	glGenBuffers(1, &VBO_Birthday_texcoord);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_Birthday_texcoord);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadTexcoord_end), quadTexcoord_end, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
 
 	// Abhishek
 	//  Vertex Shader
@@ -1262,81 +1530,129 @@ int initialize(void)
 			0.0f, 1.0f, 0.0f,
 			0.0f, 1.0f, 0.0f};
 
-	
-GLfloat shivlingPosition[] = {
-								 // top
-								 1.0f, 1.0f, -1.0f,
-								-1.0f, 1.0f, -1.0f,
-								-1.0f, 1.0f, 1.0f,
-								 1.0f, 1.0f, 1.0f,
+	GLfloat shivlingPosition[] = {
+		// top
+		1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
 
-								 // bottom
-								 1.0f, -1.0f, -1.0f,
-								-1.0f, -1.0f, -1.0f,
-								-1.0f, -1.0f,  1.0f,
-								 1.0f, -1.0f,  1.0f,
+		// bottom
+		1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
 
-								 // front
-								 1.0f, 1.0f, 1.0f,
-								-1.0f, 1.0f, 1.0f,
-								-1.0f, -1.0f, 1.0f,
-								 1.0f, -1.0f, 1.0f,
+		// front
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
 
-								 // back
-								 1.0f, 1.0f, -1.0f,
-								-1.0f, 1.0f, -1.0f,
-								-1.0f, -1.0f, -1.0f,
-								 1.0f, -1.0f, -1.0f,
+		// back
+		1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
 
-								 // right
-								 1.0f, 1.0f, -1.0f,
-								 1.0f, 1.0f, 1.0f,
-								 1.0f, -1.0f, 1.0f,
-								 1.0f, -1.0f, -1.0f,
+		// right
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
 
-								 // left
-								-1.0f, 1.0f, 1.0f,
-								-1.0f, 1.0f, -1.0f,
-								-1.0f, -1.0f, -1.0f,
-								-1.0f, -1.0f, 1.0f,
-								};
- GLfloat shivlingNormals[] = {
-						// top surface
-						0.0f, 1.0f, 0.0f,  // top-right of top
-						0.0f, 1.0f, 0.0f, // top-left of top
-						0.0f, 1.0f, 0.0f, // bottom-left of top
-						0.0f, 1.0f, 0.0f,  // bottom-right of top
+		// left
+		-1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		-1.0f,
+		1.0f,
+	};
+	GLfloat shivlingNormals[] = {
+		// top surface
+		0.0f, 1.0f, 0.0f, // top-right of top
+		0.0f, 1.0f, 0.0f, // top-left of top
+		0.0f, 1.0f, 0.0f, // bottom-left of top
+		0.0f, 1.0f, 0.0f, // bottom-right of top
 
-						// bottom surface
-						0.0f, -1.0f, 0.0f,  // top-right of bottom
-						0.0f, -1.0f, 0.0f,  // top-left of bottom
-						0.0f, -1.0f, 0.0f,  // bottom-left of bottom
-						0.0f, -1.0f, 0.0f,   // bottom-right of bottom
+		// bottom surface
+		0.0f, -1.0f, 0.0f, // top-right of bottom
+		0.0f, -1.0f, 0.0f, // top-left of bottom
+		0.0f, -1.0f, 0.0f, // bottom-left of bottom
+		0.0f, -1.0f, 0.0f, // bottom-right of bottom
 
-						// front surface
-						0.0f, 0.0f, 1.0f,  // top-right of front
-						0.0f, 0.0f, 1.0f, // top-left of front
-						0.0f, 0.0f, 1.0f, // bottom-left of front
-						0.0f, 0.0f, 1.0f,  // bottom-right of front
+		// front surface
+		0.0f, 0.0f, 1.0f, // top-right of front
+		0.0f, 0.0f, 1.0f, // top-left of front
+		0.0f, 0.0f, 1.0f, // bottom-left of front
+		0.0f, 0.0f, 1.0f, // bottom-right of front
 
-						// back surface
-						0.0f, 0.0f, -1.0f,  // top-right of back
-						0.0f, 0.0f, -1.0f, // top-left of back
-						0.0f, 0.0f, -1.0f, // bottom-left of back
-						0.0f, 0.0f, -1.0f,  // bottom-right of back
+		// back surface
+		0.0f, 0.0f, -1.0f, // top-right of back
+		0.0f, 0.0f, -1.0f, // top-left of back
+		0.0f, 0.0f, -1.0f, // bottom-left of back
+		0.0f, 0.0f, -1.0f, // bottom-right of back
 
-							// right surface
-						1.0f, 0.0f, 0.0f,  // top-right of right
-						1.0f, 0.0f, 0.0f,  // top-left of right
-						1.0f, 0.0f, 0.0f,  // bottom-left of right
-						1.0f, 0.0f, 0.0f  // bottom-right of right
+		// right surface
+		1.0f, 0.0f, 0.0f, // top-right of right
+		1.0f, 0.0f, 0.0f, // top-left of right
+		1.0f, 0.0f, 0.0f, // bottom-left of right
+		1.0f, 0.0f, 0.0f  // bottom-right of right
 
 						// left surface
-						-1.0f, 0.0f, 0.0f, // top-right of left
-						-1.0f, 0.0f, 0.0f, // top-left of left
-						-1.0f, 0.0f, 0.0f, // bottom-left of left
-						-1.0f, 0.0f, 0.0f, // bottom-right of left
-						};
+						- 1.0f,
+		0.0f, 0.0f,		   // top-right of left
+		-1.0f, 0.0f, 0.0f, // top-left of left
+		-1.0f, 0.0f, 0.0f, // bottom-left of left
+		-1.0f, 0.0f, 0.0f, // bottom-right of left
+	};
 
 	float angle = 0.0f;
 	GLfloat leafPosition[66]; // 22 points * 3
@@ -1461,25 +1777,25 @@ GLfloat shivlingPosition[] = {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	//Shivling
-	// vao_cube related code
+	// Shivling
+	//  vao_cube related code
 	glGenVertexArrays(1, &vao_shivling);
-		glBindVertexArray(vao_shivling);
-		//vbo_shivling_position 
-			glGenBuffers(1, &vbo_shivling_position);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_shivling_position);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(shivlingPosition), shivlingPosition, GL_STATIC_DRAW);
-			glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-			glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// vbo for Normals
-			glGenBuffers(1, &vbo_shivling_normal);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_shivling_normal);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(shivlingNormals), shivlingNormals, GL_STATIC_DRAW);
-			glVertexAttribPointer(AMC_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-			glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
+	glBindVertexArray(vao_shivling);
+	// vbo_shivling_position
+	glGenBuffers(1, &vbo_shivling_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_shivling_position);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(shivlingPosition), shivlingPosition, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// vbo for Normals
+	glGenBuffers(1, &vbo_shivling_normal);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_shivling_normal);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(shivlingNormals), shivlingNormals, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	glBindVertexArray(0);
 
 	// vao and vbo related code
@@ -1487,43 +1803,42 @@ GLfloat shivlingPosition[] = {
 
 	// vao and vbo related code
 	glGenVertexArrays(1, &vao_cylender_shivling);
-		glBindVertexArray(vao_cylender_shivling);
-			glGenBuffers(1, &vbo_cylender_shivling);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_cylender_shivling);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(cylinderData), cylinderData, GL_STATIC_DRAW);
-			glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-			glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(vao_cylender_shivling);
+	glGenBuffers(1, &vbo_cylender_shivling);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cylender_shivling);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cylinderData), cylinderData, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-			glGenBuffers(1, &vbo_normal_cylender_shivling);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_normal_cylender_shivling);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(cylinderNormals), cylinderNormals, GL_STATIC_DRAW);
-			glVertexAttribPointer(AMC_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-			glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glGenBuffers(1, &vbo_normal_cylender_shivling);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_normal_cylender_shivling);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cylinderNormals), cylinderNormals, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-
-	//SUN
-	// Vertex Shader
-	const GLchar* vertexShaderSourceCode_sunrise =
-		"#version 460 core" \
-		"\n" \
-		"in vec4 a_position;" \
-		"uniform mat4 u_modelMatrix;" \
-		"uniform mat4 u_viewMatrix;" \
-		"uniform mat4 u_projectionMatrix;" \
-		"void main(void)" \
-		"{" \
-		"gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * a_position;" \
+	// SUN
+	//  Vertex Shader
+	const GLchar *vertexShaderSourceCode_sunrise =
+		"#version 460 core"
+		"\n"
+		"in vec4 a_position;"
+		"uniform mat4 u_modelMatrix;"
+		"uniform mat4 u_viewMatrix;"
+		"uniform mat4 u_projectionMatrix;"
+		"void main(void)"
+		"{"
+		"gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * a_position;"
 		"}";
-	
+
 	GLuint vertexShaderObject_sunrise = glCreateShader(GL_VERTEX_SHADER);
 
-	glShaderSource(vertexShaderObject_sunrise, 1, (const GLchar**)&vertexShaderSourceCode_sunrise, NULL);
+	glShaderSource(vertexShaderObject_sunrise, 1, (const GLchar **)&vertexShaderSourceCode_sunrise, NULL);
 
 	glCompileShader(vertexShaderObject_sunrise);
-	
+
 	status = 0;
 	infoLogLength = 0;
 	log = NULL;
@@ -1534,7 +1849,7 @@ GLfloat shivlingPosition[] = {
 		glGetShaderiv(vertexShaderObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
-			log = (char*)malloc(sizeof(infoLogLength));
+			log = (char *)malloc(sizeof(infoLogLength));
 			if (log != NULL)
 			{
 				GLsizei written;
@@ -1547,19 +1862,19 @@ GLfloat shivlingPosition[] = {
 	}
 
 	// Fragment Shader
-	const GLchar* fragmentShaderSourceCode_sunrise =
-		"#version 460 core" \
-		"\n" \
-		"uniform vec3 u_changeColor;" \
-		"out vec4 FragColor;" \
-		"void main(void)" \
-		"{" \
-		"FragColor = vec4(u_changeColor, 1.0);" \
+	const GLchar *fragmentShaderSourceCode_sunrise =
+		"#version 460 core"
+		"\n"
+		"uniform vec3 u_changeColor;"
+		"out vec4 FragColor;"
+		"void main(void)"
+		"{"
+		"FragColor = vec4(u_changeColor, 1.0);"
 		"}";
 
 	GLuint fragmentShaderObject_sunrise = glCreateShader(GL_FRAGMENT_SHADER);
 
-	glShaderSource(fragmentShaderObject_sunrise, 1, (const GLchar**)&fragmentShaderSourceCode_sunrise, NULL);
+	glShaderSource(fragmentShaderObject_sunrise, 1, (const GLchar **)&fragmentShaderSourceCode_sunrise, NULL);
 
 	glCompileShader(fragmentShaderObject_sunrise);
 
@@ -1573,7 +1888,7 @@ GLfloat shivlingPosition[] = {
 		glGetShaderiv(fragmentShaderObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
-			log = (char*)malloc(sizeof(infoLogLength));
+			log = (char *)malloc(sizeof(infoLogLength));
 			if (log != NULL)
 			{
 				GLsizei written;
@@ -1605,7 +1920,7 @@ GLfloat shivlingPosition[] = {
 		glGetProgramiv(shaderProgramObject_sunrise, GL_INFO_LOG_LENGTH, &infoLogLength);
 		if (infoLogLength > 0)
 		{
-			log = (char*)malloc(sizeof(infoLogLength));
+			log = (char *)malloc(sizeof(infoLogLength));
 			if (log != NULL)
 			{
 				GLsizei written;
@@ -1621,7 +1936,6 @@ GLfloat shivlingPosition[] = {
 	viewMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_viewMatrix");
 	projectionMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_projectionMatrix");
 	changeColorUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_changeColor");
-
 
 	// Depth related changes
 	glClearDepth(1.0f);
@@ -1639,7 +1953,29 @@ GLfloat shivlingPosition[] = {
 		return -7;
 	}
 
-	//Enabling Texture
+	if (loadGLTexture(&texture_saturn, MAKEINTRESOURCE(IDBITMAP_SATURN)) == FALSE)
+		return -6;
+
+	if (loadGLTexture(&texture_astro, MAKEINTRESOURCE(IDBITMAP_ASTRO)) == FALSE)
+		return -7;
+
+	if (loadGLTexture(&texture_medi, MAKEINTRESOURCE(IDBITMAP_MEDI)) == FALSE)
+		return -8;
+
+	if (loadGLTexture(&texture_comp, MAKEINTRESOURCE(IDBITMAP_COMP)) == FALSE)
+		return -9;
+
+	if (loadGLTexture(&texture_cgp, MAKEINTRESOURCE(IDBITMAP_CGP)) == FALSE)
+		return -10;
+
+	if (loadGLTexture(&texture_Birthday, MAKEINTRESOURCE(IDBITMAP_BIRTHDAY)) == FALSE)
+	{
+		fprintf(gpFile, " loadGLTexture() for kundali failed");
+		uninitialize();
+		return -11;
+	}
+
+	// Enabling Texture
 	glEnable(GL_TEXTURE_2D);
 
 	perspectiveProjectionMatrix = mat4::identity();
@@ -1649,14 +1985,14 @@ GLfloat shivlingPosition[] = {
 	return 0;
 }
 
-BOOL loadGLTexture(GLuint* texture, TCHAR imageResourceId[])
+BOOL loadGLTexture(GLuint *texture, TCHAR imageResourceId[])
 {
-	//Variable declarations
+	// Variable declarations
 	HBITMAP hBitMap = NULL;
 	BITMAP bmp;
 	BOOL bResult = FALSE;
 
-	//code
+	// code
 	hBitMap = (HBITMAP)LoadImage(
 		GetModuleHandle(NULL),
 		imageResourceId,
@@ -1676,7 +2012,7 @@ BOOL loadGLTexture(GLuint* texture, TCHAR imageResourceId[])
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-		//Create the texture
+		// Create the texture
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp.bmWidth, bmp.bmHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, bmp.bmBits);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -1807,6 +2143,8 @@ void display(void)
 	mat4 pop();
 	void drawLeaf();
 	void shivling(void);
+	void introFunc(void);
+	void endfunc(void);
 
 	// Variable Declaration
 	GLfloat water_pos[3 * 6 * TESSEL_X * TESSEL_Z];
@@ -1814,444 +2152,246 @@ void display(void)
 
 	// code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// use the shader program object
-	glUseProgram(SPObj_Water);
-
-	viewMatrix = lookat(vec3(camPosX, 0.0f, camPosZ), vec3(objPosX, objPosY, -10.0f), vec3(0.0f, 1.0f, 0.0f));
-	push(modelMatrix);
-
-	translationMatrix = vmath::translate(0.0f, -3.8f, -5.0f);
-	modelMatrix = translationMatrix;
-
-	rotationMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
-	modelMatrix = modelMatrix * rotationMatrix;
-
-	glUniformMatrix4fv(modelMatrixUniform_water, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_water, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_water, 1, GL_FALSE, perspectiveProjectionMatrix);
-
-	if (bLight)
+	if (intro)
 	{
-		glUniform1i(lightingEnabledUnifrom_water, 1);
-		glUniform3fv(laUniform_water, 1, lightAmbient);
-		glUniform3fv(ldUniform_water, 1, lightDiffuse);
-		glUniform3fv(lsUniform_water, 1, lightSpecular);
-		glUniform4fv(lightPositionUniform_water, 1, lightPosition);
-		glUniform3fv(kaUniform_water, 1, materialAmbient);
-		glUniform3fv(kdUniform_water, 1, materialDiffuse);
-		glUniform3fv(ksUniform_water, 1, materialSpecular);
-		glUniform1f(materialShininessUniform_water, materialShininess);
-	}
-	else
-	{
-		glUniform1i(lightingEnabledUnifrom_water, 0);
+		introFunc();
 	}
 
-	int k = 0;
-	for (int i = 0; i < TESSEL_Z; i++)
+	if (end)
 	{
-		for (int j = 0; j < TESSEL_X; j++)
+		endfunc();
+	}
+
+	if (!intro)
+	{
+
+		// use the shader program object
+		glUseProgram(SPObj_Water);
+
+		viewMatrix = lookat(vec3(camPosX, 0.0f, camPosZ), vec3(objPosX, objPosY, -10.0f), vec3(0.0f, 1.0f, 0.0f));
+		push(modelMatrix);
+
+		translationMatrix = vmath::translate(0.0f, -3.8f, -5.0f);
+		modelMatrix = translationMatrix;
+
+		rotationMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * rotationMatrix;
+
+		glUniformMatrix4fv(modelMatrixUniform_water, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(viewMatrixUniform_water, 1, GL_FALSE, viewMatrix);
+		glUniformMatrix4fv(projectionMatrixUniform_water, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+		if (bLight)
 		{
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 0] = water_x[i + 0][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 1] = water_y[i + 0][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 2] = water_z[i + 0][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 3] = water_x[i + 0][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 4] = water_y[i + 0][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 5] = water_z[i + 0][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 6] = water_x[i + 1][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 7] = water_y[i + 1][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 8] = water_z[i + 1][j + 0];
-
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 9] = water_x[i + 0][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 10] = water_y[i + 0][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 11] = water_z[i + 0][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 12] = water_x[i + 1][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 13] = water_y[i + 1][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 14] = water_z[i + 1][j + 0];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 15] = water_x[i + 1][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 16] = water_y[i + 1][j + 1];
-			water_pos[(i * TESSEL_X * 18) + (j * 18) + 17] = water_z[i + 1][j + 1];
+			glUniform1i(lightingEnabledUnifrom_water, 1);
+			glUniform3fv(laUniform_water, 1, lightAmbient);
+			glUniform3fv(ldUniform_water, 1, lightDiffuse);
+			glUniform3fv(lsUniform_water, 1, lightSpecular);
+			glUniform4fv(lightPositionUniform_water, 1, lightPosition);
+			glUniform3fv(kaUniform_water, 1, materialAmbient);
+			glUniform3fv(kdUniform_water, 1, materialDiffuse);
+			glUniform3fv(ksUniform_water, 1, materialSpecular);
+			glUniform1f(materialShininessUniform_water, materialShininess);
 		}
-	}
-
-	glBindVertexArray(VAO_WATER);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_POSITION_WATER);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(water_pos), water_pos, GL_DYNAMIC_DRAW);
-	glDrawArrays(GL_TRIANGLES, 0, TESSEL_X * TESSEL_Z * 6);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	modelMatrix = pop();
-
-	glUseProgram(0);
-
-	// Boat
-	glUseProgram(SPObj_Boat);
-	// Tranformations
-
-	push(modelMatrix);
-
-	translationMatrix = vmath::translate(xTransBoat, -3.75f, -13.5f);
-
-	scaleMatrix = vmath::scale(1.0f, 0.25f, 0.25f);
-	modelMatrix = translationMatrix * scaleMatrix;
-
-	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
-	boatHeight = boatHeight + 0.01f;
-	glUniform1f(yTransUniform_boat, sinf(boatHeight) * 0.05f);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_wooden);
-	glUniform1i(TSU_boat, 0);
-	
-
-	glBindVertexArray(VAO_BOAT);
-
-	//Here there shouls be drawing code
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
-
-
-	glBindVertexArray(0);
-
-	glBindTexture(GL_TEXTURE_2D,0);
-
-
-	//new cube
-	
-	modelMatrix = vmath::translate(xTransBoat, -3.75f, -13.5f);
-	modelMatrix *= vmath::scale(0.8f, 0.1f, 0.25f);
-	
-	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
-	
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_wooden);
-	glUniform1i(TSU_boat, 0);
-
-
-	glBindVertexArray(VAO_newboat);
-
-	//Here there shouls be drawing code
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
-	glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D,0);
-	modelMatrix = pop();
-	glUseProgram(0);
-
-	// Iland
-	glUseProgram(SPObj_Iland);
-	// viewMatrix = mat4::identity();
-
-	push(modelMatrix);
-	glUniform1i(lightingEnabledUniform_Iland, 1);
-	glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
-	glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
-	glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
-	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
-
-	// ambient material
-	MaterialAmbient_Iland[0] = 0.19125; // r
-	MaterialAmbient_Iland[1] = 0.0735;	// g
-	MaterialAmbient_Iland[2] = 0.0225;	// b
-	MaterialAmbient_Iland[3] = 1.0f;	// a
-	glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
-
-	// diffuse material
-	MaterialDiffuse_Iland[0] = 0.7038;	// r
-	MaterialDiffuse_Iland[1] = 0.27048; // g
-	MaterialDiffuse_Iland[2] = 0.0828;	// b
-	MaterialDiffuse_Iland[3] = 1.0f;	// a
-	glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
-
-	// specular material
-	MaterialSpecular_Iland[0] = 0.256777; // r
-	MaterialSpecular_Iland[1] = 0.137622; // g
-	MaterialSpecular_Iland[2] = 0.086014; // b
-	MaterialSpecular_Iland[3] = 1.0f;	  // a
-	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
-
-	// shininess
-	MaterialShininess_Iland = 0.1 * 128;
-	glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
-
-	translationMatrix = translate(0.0f, -3.5f, -11.0f); // glTradslatef replaced by this line
-	modelMatrix = translationMatrix;
-	//	modelMatrix *= scale(4.0f,4.0f,4.0f);
-	rotationMatrix = rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-	modelMatrix = modelMatrix * rotationMatrix;
-
-	drawTree(8.0f);
-
-	modelMatrix = translate(5.0f,-3.5f,-6.0f);
-		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-			drawTree(8.0f);
-					
-		modelMatrix = translate(-4.0f,-3.5f,-4.0f);
-		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-			drawTree(8.0f);
-
-		modelMatrix = translate(-3.0f,-3.3f,-10.0f);
-		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-		modelMatrix *= scale(0.5f,0.5f,0.5f);
-			drawTree(8.0f);
-
-	modelMatrix = pop();
-
-	push(modelMatrix);
-
-	glUniform1i(lightingEnabledUniform_Iland, 1);
-
-	glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
-	glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
-	glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
-	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
-
-	// ambient material
-	MaterialAmbient_Iland[0] = 0.0;	 // r
-	MaterialAmbient_Iland[1] = 0.0;	 // g
-	MaterialAmbient_Iland[2] = 0.0;	 // b
-	MaterialAmbient_Iland[3] = 1.0f; // a
-	glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
-
-	// diffuse material
-	MaterialDiffuse_Iland[0] = 0.5;	 // r
-	MaterialDiffuse_Iland[1] = 0.5;	 // g
-	MaterialDiffuse_Iland[2] = 0.0;	 // b
-	MaterialDiffuse_Iland[3] = 1.0f; // a
-	glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
-
-	// specular material
-	MaterialSpecular_Iland[0] = 0.60; // r
-	MaterialSpecular_Iland[1] = 0.60; // g
-	MaterialSpecular_Iland[2] = 0.50; // b
-	MaterialSpecular_Iland[3] = 1.0f; // a
-	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
-
-	// shininess
-	MaterialShininess_Iland = 0.25 * 128;
-	glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
-
-	modelMatrix *= translate(0.0f, -4.0f, -10.0f);
-	modelMatrix *= scale(17.0f, 2.0f, 5.0f);
-
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
-
-	// *** bind vao ***
-	glBindVertexArray(gVao_sphere);
-
-	// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
-	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
-
-	// *** unbind vao ***
-	glBindVertexArray(0);
-	glUniform1i(lightingEnabledUniform_Iland, 0);
-	modelMatrix = pop();
-
-	push(modelMatrix);
-	modelMatrix *= translate(xPosLeaf, yPosLeaf, zPosLeaf);
-	modelMatrix *= rotate(35.0f, 0.0f, 0.0f, 1.0f);
-	drawLeaf();
-	modelMatrix = pop();
-	// unUse the shader program object
-
-	//Sun
-	push(modelMatrix);
-
-	glUseProgram(shaderProgramObject_sunrise);
-
-	// Transformations
-	translationMatrix = vmath::translate(0.0f, yTransition, -100.0f);
-
-	modelMatrix = translationMatrix;
-
-	scaleMatrix = vmath::scale(10.0f, 10.0f, 10.0f);
-	modelMatrix = translationMatrix * scaleMatrix;
-
-	glUniformMatrix4fv(modelMatrixUniform_sunrise, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_sunrise, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_sunrise, 1, GL_FALSE, perspectiveProjectionMatrix);
-
-	glUniform3fv(changeColorUniform, 1, colorArray);
-	if(f > 20.0f)
-	{
-		if(i <= 100)
+		else
 		{
-			colorArray[0]+=sphereColor_xShift;
-			colorArray[1]+=sphereColor_yShift;
-			colorArray[2]+=sphereColor_zShift;
-			i++;
-			f = 0.0f;
+			glUniform1i(lightingEnabledUnifrom_water, 0);
 		}
-	}
-	f+=0.01f;
 
+		int k = 0;
+		for (int i = 0; i < TESSEL_Z; i++)
+		{
+			for (int j = 0; j < TESSEL_X; j++)
+			{
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 0] = water_x[i + 0][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 1] = water_y[i + 0][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 2] = water_z[i + 0][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 3] = water_x[i + 0][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 4] = water_y[i + 0][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 5] = water_z[i + 0][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 6] = water_x[i + 1][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 7] = water_y[i + 1][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 8] = water_z[i + 1][j + 0];
 
-	// *** bind vao ***
-	glBindVertexArray(gVao_sphere);
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 9] = water_x[i + 0][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 10] = water_y[i + 0][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 11] = water_z[i + 0][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 12] = water_x[i + 1][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 13] = water_y[i + 1][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 14] = water_z[i + 1][j + 0];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 15] = water_x[i + 1][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 16] = water_y[i + 1][j + 1];
+				water_pos[(i * TESSEL_X * 18) + (j * 18) + 17] = water_z[i + 1][j + 1];
+			}
+		}
 
-	// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
-	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+		glBindVertexArray(VAO_WATER);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_POSITION_WATER);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(water_pos), water_pos, GL_DYNAMIC_DRAW);
+		glDrawArrays(GL_TRIANGLES, 0, TESSEL_X * TESSEL_Z * 6);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		modelMatrix = pop();
 
-	// *** unbind vao ***
-	glBindVertexArray(0);
+		glUseProgram(0);
 
-	// Unuse the shader program object
-	modelMatrix = pop();
+		// Boat
+		glUseProgram(SPObj_Boat);
+		// Tranformations
 
-	glUseProgram(0);
+		push(modelMatrix);
 
+		translationMatrix = vmath::translate(xTransBoat, -3.75f, -13.5f);
 
-	glUseProgram(SPObj_Iland);
-	
-	shivling();
-	glUseProgram(0);
+		scaleMatrix = vmath::scale(1.0f, 0.25f, 0.25f);
+		modelMatrix = translationMatrix * scaleMatrix;
 
-	SwapBuffers(ghdc);
-}
+		glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+		glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+		boatHeight = boatHeight + 0.01f;
+		glUniform1f(yTransUniform_boat, sinf(boatHeight) * 0.05f);
 
-void shivling(void)
-{
-	void push(mat4);
-	mat4 pop();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_wooden);
+		glUniform1i(TSU_boat, 0);
 
-	// code
-	push(modelMatrix);
+		glBindVertexArray(VAO_BOAT);
 
-	translationMatrix = translate(0.0f+20.0f, -3.3f+0.5f, -10.0f-3.0f); // glTradslatef replaced by this line
-	modelMatrix = translationMatrix;
-	modelMatrix *= scale(0.25f, 0.5f, 0.25f);
-
-	// Transformations
-
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
-	
-	glUniform1i(lightingEnabledUniform_Iland, 1);
-
-	glUniform3fv(laUniform_Iland, 1, lightAmbient);
-	glUniform3fv(ldUniform_Iland, 1, lightDiffuse);
-	glUniform3fv(lsUniform_Iland, 1, lightSpecular);
-	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition);
-
-	// ambient material
-	materialAmbient[0] = 0.05375; // r
-	materialAmbient[1] = 0.05;    // g
-	materialAmbient[2] = 0.06625; // b
-	materialAmbient[3] = 1.0f;    // a
-	glUniform3fv(kaUniform_Iland, 1, materialAmbient);
-
-	// diffuse material
-	materialDiffuse[0] = 0.18275; // r
-	materialDiffuse[1] = 0.17;    // g
-	materialDiffuse[2] = 0.22525; // b
-	materialDiffuse[3] = 1.0f;    // a
-	glUniform3fv(kdUniform_Iland, 1, materialDiffuse);
-
-	// specular material
-	materialSpecular[0] = 0.332741; // r
-	materialSpecular[1] = 0.328634; // g
-	materialSpecular[2] = 0.346435; // b
-	materialSpecular[3] = 1.0f;     // a
-	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
-
-	// shininess
-	materialShininess = 0.3 * 128;
-	glUniform1f(materialShinenessUniform_Iland,materialShininess);
-	
-	// *** bind vao ***
-	glBindVertexArray(gVao_sphere);
-
-	// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
-	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
-
-	// *** unbind vao ***
-	glBindVertexArray(0);
-
-	translationMatrix = translate(0.0f+20.0f, -3.5f+0.5f, -10.0f-3.0f); // glTradslatef replaced by this line
-	modelMatrix = translationMatrix;
-	//	modelMatrix *= scale(4.0f,4.0f,4.0f);
-	modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
-	glBindVertexArray(vao_cylender_shivling);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
-	glBindVertexArray(0);
-
-	// draw shivling
-	modelMatrix = translate(0.6f+20.0f, -3.45f+0.5f, -10.0f-3.0f);
-	modelMatrix *= scale(0.3f,0.075f,0.1f);
-
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
-
-	glBindVertexArray(vao_shivling);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // There is no GL_QUADS in Programmable Pipeline
+		// Here there shouls be drawing code
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
 		glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
 		glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
 		glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
 		glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
-	glBindVertexArray(0);
 
-	modelMatrix = pop();
+		glBindVertexArray(0);
 
-	push(modelMatrix);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// new cube
+
+		modelMatrix = vmath::translate(xTransBoat, -3.75f, -13.5f);
+		modelMatrix *= vmath::scale(0.8f, 0.1f, 0.25f);
+
+		glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+		glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_wooden);
+		glUniform1i(TSU_boat, 0);
+
+		glBindVertexArray(VAO_newboat);
+
+		// Here there shouls be drawing code
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		modelMatrix = pop();
+		glUseProgram(0);
+
+		// Iland
+		glUseProgram(SPObj_Iland);
+		// viewMatrix = mat4::identity();
+
+		push(modelMatrix);
+		glUniform1i(lightingEnabledUniform_Iland, 1);
+		glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
+		glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
+		glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
+		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
+
+		// ambient material
+		MaterialAmbient_Iland[0] = 0.19125; // r
+		MaterialAmbient_Iland[1] = 0.0735;	// g
+		MaterialAmbient_Iland[2] = 0.0225;	// b
+		MaterialAmbient_Iland[3] = 1.0f;	// a
+		glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
+
+		// diffuse material
+		MaterialDiffuse_Iland[0] = 0.7038;	// r
+		MaterialDiffuse_Iland[1] = 0.27048; // g
+		MaterialDiffuse_Iland[2] = 0.0828;	// b
+		MaterialDiffuse_Iland[3] = 1.0f;	// a
+		glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
+
+		// specular material
+		MaterialSpecular_Iland[0] = 0.256777; // r
+		MaterialSpecular_Iland[1] = 0.137622; // g
+		MaterialSpecular_Iland[2] = 0.086014; // b
+		MaterialSpecular_Iland[3] = 1.0f;	  // a
+		glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
+
+		// shininess
+		MaterialShininess_Iland = 0.1 * 128;
+		glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
+
+		translationMatrix = translate(0.0f, -3.5f, -11.0f); // glTradslatef replaced by this line
+		modelMatrix = translationMatrix;
+		//	modelMatrix *= scale(4.0f,4.0f,4.0f);
+		rotationMatrix = rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+		modelMatrix = modelMatrix * rotationMatrix;
+
+		drawTree(8.0f);
+
+		modelMatrix = translate(5.0f, -3.5f, -6.0f);
+		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+		drawTree(8.0f);
+
+		modelMatrix = translate(-4.0f, -3.5f, -4.0f);
+		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+		drawTree(8.0f);
+
+		modelMatrix = translate(-3.0f, -3.3f, -10.0f);
+		modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+		modelMatrix *= scale(0.5f, 0.5f, 0.5f);
+		drawTree(8.0f);
+
+		modelMatrix = pop();
+
+		push(modelMatrix);
 
 		glUniform1i(lightingEnabledUniform_Iland, 1);
 
-		glUniform3fv(laUniform_Iland, 1, lightAmbient);
-		glUniform3fv(ldUniform_Iland, 1, lightDiffuse);
-		glUniform3fv(lsUniform_Iland, 1, lightSpecular);
-		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition);
+		glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
+		glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
+		glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
+		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
 
 		// ambient material
-		materialAmbient[0] = 0.0;  // r
-		materialAmbient[1] = 0.0;  // g
-		materialAmbient[2] = 0.0;  // b
-		materialAmbient[3] = 1.0f; // a
-		glUniform3fv(kaUniform_Iland, 1, materialAmbient);
+		MaterialAmbient_Iland[0] = 0.0;	 // r
+		MaterialAmbient_Iland[1] = 0.0;	 // g
+		MaterialAmbient_Iland[2] = 0.0;	 // b
+		MaterialAmbient_Iland[3] = 1.0f; // a
+		glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
 
 		// diffuse material
-		materialDiffuse[0] = 0.5;  // r
-		materialDiffuse[1] = 0.5;  // g
-		materialDiffuse[2] = 0.0;  // b
-		materialDiffuse[3] = 1.0f; // a
-		glUniform3fv(kdUniform_Iland, 1, materialDiffuse);
+		MaterialDiffuse_Iland[0] = 0.5;	 // r
+		MaterialDiffuse_Iland[1] = 0.5;	 // g
+		MaterialDiffuse_Iland[2] = 0.0;	 // b
+		MaterialDiffuse_Iland[3] = 1.0f; // a
+		glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
 
 		// specular material
-		materialSpecular[0] = 0.60; // r
-		materialSpecular[1] = 0.60; // g
-		materialSpecular[2] = 0.50; // b
-		materialSpecular[3] = 1.0f; // a
-		glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+		MaterialSpecular_Iland[0] = 0.60; // r
+		MaterialSpecular_Iland[1] = 0.60; // g
+		MaterialSpecular_Iland[2] = 0.50; // b
+		MaterialSpecular_Iland[3] = 1.0f; // a
+		glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
 
 		// shininess
-		materialShininess = 0.25 * 128;
-		glUniform1f(materialShinenessUniform_Iland,materialShininess);
+		MaterialShininess_Iland = 0.25 * 128;
+		glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
 
-		modelMatrix *= translate(3.0f+20.0f, -4.0f+0.5f, -10.0f-3.0f);
-		modelMatrix *= scale(10.0f, 1.0f, 10.0f);
+		modelMatrix *= translate(0.0f, -4.0f, -10.0f);
+		modelMatrix *= scale(17.0f, 2.0f, 5.0f);
 
 		glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
@@ -2266,7 +2406,390 @@ void shivling(void)
 
 		// *** unbind vao ***
 		glBindVertexArray(0);
+		glUniform1i(lightingEnabledUniform_Iland, 0);
+		modelMatrix = pop();
+
+		push(modelMatrix);
+		modelMatrix *= translate(xPosLeaf, yPosLeaf, zPosLeaf);
+		modelMatrix *= rotate(35.0f, 0.0f, 0.0f, 1.0f);
+		drawLeaf();
+		modelMatrix = pop();
+		// unUse the shader program object
+
+		// Sun
+		push(modelMatrix);
+
+		glUseProgram(shaderProgramObject_sunrise);
+
+		// Transformations
+		translationMatrix = vmath::translate(0.0f, yTransition, -100.0f);
+
+		modelMatrix = translationMatrix;
+
+		scaleMatrix = vmath::scale(10.0f, 10.0f, 10.0f);
+		modelMatrix = translationMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(modelMatrixUniform_sunrise, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(viewMatrixUniform_sunrise, 1, GL_FALSE, viewMatrix);
+		glUniformMatrix4fv(projectionMatrixUniform_sunrise, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+		glUniform3fv(changeColorUniform, 1, colorArray);
+		if (f > 20.0f)
+		{
+			if (i <= 100)
+			{
+				colorArray[0] += sphereColor_xShift;
+				colorArray[1] += sphereColor_yShift;
+				colorArray[2] += sphereColor_zShift;
+				i++;
+				f = 0.0f;
+			}
+		}
+		f += 0.01f;
+
+		// *** bind vao ***
+		glBindVertexArray(gVao_sphere);
+
+		// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
+		glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+
+		// *** unbind vao ***
+		glBindVertexArray(0);
+
+		// Unuse the shader program object
+		modelMatrix = pop();
+
+		glUseProgram(0);
+
+		glUseProgram(SPObj_Iland);
+
+		shivling();
+		glUseProgram(0);
+	}
+
+	SwapBuffers(ghdc);
+}
+
+void endfunc()
+{
+	// function declaraion
+	void push(mat4);
+	mat4 pop(void);
+
+	glUseProgram(SPObj_Boat);
+	push(modelMatrix);
+
+	modelMatrix = vmath::translate(0.0f, 0.0f, -3.0f);
+	modelMatrix *= vmath::scale(1.5f, 1.0f, 1.0f);
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_Birthday);
+	glUniform1i(TSU_boat, 0);
+
+	glBindVertexArray(VAO_Birthday);
+
+	// Here there shouls be drawing code
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 	modelMatrix = pop();
+	glUseProgram(0);
+}
+
+void shivling(void)
+{
+	void push(mat4);
+	mat4 pop();
+
+	// code
+	push(modelMatrix);
+
+	translationMatrix = translate(0.0f + 20.0f, -3.3f + 0.5f, -10.0f - 3.0f); // glTradslatef replaced by this line
+	modelMatrix = translationMatrix;
+	modelMatrix *= scale(0.25f, 0.5f, 0.25f);
+
+	// Transformations
+
+	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	glUniform1i(lightingEnabledUniform_Iland, 1);
+
+	glUniform3fv(laUniform_Iland, 1, lightAmbient);
+	glUniform3fv(ldUniform_Iland, 1, lightDiffuse);
+	glUniform3fv(lsUniform_Iland, 1, lightSpecular);
+	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition);
+
+	// ambient material
+	materialAmbient[0] = 0.05375; // r
+	materialAmbient[1] = 0.05;	  // g
+	materialAmbient[2] = 0.06625; // b
+	materialAmbient[3] = 1.0f;	  // a
+	glUniform3fv(kaUniform_Iland, 1, materialAmbient);
+
+	// diffuse material
+	materialDiffuse[0] = 0.18275; // r
+	materialDiffuse[1] = 0.17;	  // g
+	materialDiffuse[2] = 0.22525; // b
+	materialDiffuse[3] = 1.0f;	  // a
+	glUniform3fv(kdUniform_Iland, 1, materialDiffuse);
+
+	// specular material
+	materialSpecular[0] = 0.332741; // r
+	materialSpecular[1] = 0.328634; // g
+	materialSpecular[2] = 0.346435; // b
+	materialSpecular[3] = 1.0f;		// a
+	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+
+	// shininess
+	materialShininess = 0.3 * 128;
+	glUniform1f(materialShinenessUniform_Iland, materialShininess);
+
+	// *** bind vao ***
+	glBindVertexArray(gVao_sphere);
+
+	// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
+	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+
+	// *** unbind vao ***
+	glBindVertexArray(0);
+
+	translationMatrix = translate(0.0f + 20.0f, -3.5f + 0.5f, -10.0f - 3.0f); // glTradslatef replaced by this line
+	modelMatrix = translationMatrix;
+	//	modelMatrix *= scale(4.0f,4.0f,4.0f);
+	modelMatrix *= rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glBindVertexArray(vao_cylender_shivling);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS - 1) * 4);
+	glBindVertexArray(0);
+
+	// draw shivling
+	modelMatrix = translate(0.6f + 20.0f, -3.45f + 0.5f, -10.0f - 3.0f);
+	modelMatrix *= scale(0.3f, 0.075f, 0.1f);
+
+	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	glBindVertexArray(vao_shivling);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // There is no GL_QUADS in Programmable Pipeline
+	glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
+	glBindVertexArray(0);
+
+	modelMatrix = pop();
+
+	push(modelMatrix);
+
+	glUniform1i(lightingEnabledUniform_Iland, 1);
+
+	glUniform3fv(laUniform_Iland, 1, lightAmbient);
+	glUniform3fv(ldUniform_Iland, 1, lightDiffuse);
+	glUniform3fv(lsUniform_Iland, 1, lightSpecular);
+	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition);
+
+	// ambient material
+	materialAmbient[0] = 0.0;  // r
+	materialAmbient[1] = 0.0;  // g
+	materialAmbient[2] = 0.0;  // b
+	materialAmbient[3] = 1.0f; // a
+	glUniform3fv(kaUniform_Iland, 1, materialAmbient);
+
+	// diffuse material
+	materialDiffuse[0] = 0.5;  // r
+	materialDiffuse[1] = 0.5;  // g
+	materialDiffuse[2] = 0.0;  // b
+	materialDiffuse[3] = 1.0f; // a
+	glUniform3fv(kdUniform_Iland, 1, materialDiffuse);
+
+	// specular material
+	materialSpecular[0] = 0.60; // r
+	materialSpecular[1] = 0.60; // g
+	materialSpecular[2] = 0.50; // b
+	materialSpecular[3] = 1.0f; // a
+	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+
+	// shininess
+	materialShininess = 0.25 * 128;
+	glUniform1f(materialShinenessUniform_Iland, materialShininess);
+
+	modelMatrix *= translate(3.0f + 20.0f, -4.0f + 0.5f, -10.0f - 3.0f);
+	modelMatrix *= scale(10.0f, 1.0f, 10.0f);
+
+	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	// *** bind vao ***
+	glBindVertexArray(gVao_sphere);
+
+	// *** draw, either by glDrawTriangles() or glDrawArrays() or glDrawElements()
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gVbo_sphere_element);
+	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+
+	// *** unbind vao ***
+	glBindVertexArray(0);
+	modelMatrix = pop();
+}
+
+void introFunc()
+{
+	// function declarations
+	void drawCube(GLuint);
+	void push(mat4);
+	mat4 pop(void);
+
+	glUseProgram(SPObj_Boat);
+	push(modelMatrix);
+	// transformations
+
+	// transformations
+	scaleMatrix = vmath::mat4::identity();
+	rotationMatrix = vmath::mat4::identity();
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+	translationMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(0.0f, 0.0f, -7.0f);
+	scaleMatrix = scale(5.0f, 5.0f, 1.0f);
+
+	modelMatrix = translationMatrix * scaleMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	glBindVertexArray(VAO_intro_back);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glBindVertexArray(0);
+
+	// translation
+	scaleMatrix = vmath::mat4::identity();
+	rotationMatrix = vmath::mat4::identity();
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+	translationMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(-2.0f, 0.5f, -6.0f);
+	scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
+	rotationMatrix = vmath::rotate(angleSaturn, 1.0f, 0.0f, 0.0f);
+	modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glBindVertexArray(VAO_intro);
+
+	drawCube(texture_saturn);
+
+	// transformations
+	scaleMatrix = vmath::mat4::identity();
+	rotationMatrix = vmath::mat4::identity();
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+	translationMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(-1.0f, 0.5f, -6.0f);
+	scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
+	rotationMatrix = vmath::rotate(angleAstro, 1.0f, 0.0f, 0.0f);
+	modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	drawCube(texture_astro);
+
+	// transformations
+	translationMatrix = vmath::mat4::identity();
+	scaleMatrix = vmath::mat4::identity();
+	rotationMatrix = vmath::mat4::identity();
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(0.0f, 0.5f, -6.0f);
+	scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
+	rotationMatrix = vmath::rotate(angleMedi, 1.0f, 0.0f, 0.0f);
+	modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	drawCube(texture_medi);
+
+	// transformations
+	translationMatrix = vmath::mat4::identity();
+	scaleMatrix = vmath::mat4::identity();
+	rotationMatrix = vmath::mat4::identity();
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(1.0f, 0.5f, -6.0f);
+	scaleMatrix = scale(-0.5f, -0.5f, -0.5f);
+	rotationMatrix = vmath::rotate(angleComp, 1.0f, 0.0f, 0.0f);
+	modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	drawCube(texture_comp);
+
+	// cfg
+	translationMatrix = vmath::mat4::identity();
+	scaleMatrix = vmath::mat4::identity();
+	rotationMatrix = vmath::mat4::identity();
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+
+	translationMatrix = vmath::translate(0.0f, -1.0f, -6.0f);
+	scaleMatrix = vmath::scale(-1.5f, -0.4f, -0.4f);
+	rotationMatrix = vmath::rotate(angleCfg, 1.0f, 0.0f, 0.0f);
+	modelMatrix = translationMatrix * scaleMatrix * rotationMatrix;
+
+	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
+
+	drawCube(texture_cgp);
+
+	glBindVertexArray(0);
+
+	modelMatrix = pop();
+
+	// unuse the shader program object
+	glUseProgram(0);
+}
+
+void drawCube(GLuint texture)
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(TSU_boat, 0);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 12, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 16, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 20, 4);
 }
 
 void push(mat4 matrix)
@@ -2287,25 +2810,25 @@ void drawTree(float height)
 	// function declarations
 	mat4 pop();
 	void push(mat4);
-	void traverseTree(struct tree*, float);
+	void traverseTree(struct tree *, float);
 
 	srand(0);
 	push(modelMatrix);
 	{
 		// Transformations
-		modelMatrix *= scale((GLfloat)height*0.5f, (GLfloat)height*0.5f, (GLfloat)height*0.5f);
+		modelMatrix *= scale((GLfloat)height * 0.5f, (GLfloat)height * 0.5f, (GLfloat)height * 0.5f);
 		glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
 		glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
 		glBindVertexArray(vao_cylender);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
-		glBindVertexArray(0);		
-		modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);	
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS - 1) * 4);
+		glBindVertexArray(0);
+		modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);
 		traverseTree(root, height - 0.03f);
 	}
 	modelMatrix = pop();
 }
-void traverseTree(struct tree* node, float height)
+void traverseTree(struct tree *node, float height)
 {
 	mat4 pop();
 	void push(mat4);
@@ -2316,18 +2839,18 @@ void traverseTree(struct tree* node, float height)
 		{
 			float rotateAngle = (float)(rand() % 40);
 			srand(0);
-			modelMatrix *= rotate(rotateAngle, 0.0f,1.0f,0.0f);
-			modelMatrix *= scale((GLfloat)height*0.1f, (GLfloat)height*0.1f, (GLfloat)height*0.1f);
+			modelMatrix *= rotate(rotateAngle, 0.0f, 1.0f, 0.0f);
+			modelMatrix *= scale((GLfloat)height * 0.1f, (GLfloat)height * 0.1f, (GLfloat)height * 0.1f);
 			// Transformations
 			glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
 			glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
 			glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
 			glBindVertexArray(vao_cylender);
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS - 1) * 4);
 			glBindVertexArray(0);
 
 			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);
-			
+
 			traverseTree(node->branch1, height - 0.03);
 		}
 	}
@@ -2340,15 +2863,15 @@ void traverseTree(struct tree* node, float height)
 			float rotateAngle = (float)(rand() % 40);
 			srand(10);
 			modelMatrix *= rotate(rotateAngle, 0.0f, -1.0f, 0.0f);
-			modelMatrix *= scale((GLfloat)height*0.1f, (GLfloat)height*0.1f, (GLfloat)height*0.1f);
+			modelMatrix *= scale((GLfloat)height * 0.1f, (GLfloat)height * 0.1f, (GLfloat)height * 0.1f);
 			// Transformations
 			glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
 			glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
 			glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
 			glBindVertexArray(vao_cylender);
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS-1)*4);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, (CIRCLE_POINTS - 1) * 4);
 			glBindVertexArray(0);
-			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);	
+			modelMatrix *= translate(0.0f, 0.0f, (float)height * 0.035f);
 			traverseTree(node->branch2, height - 0.03);
 		}
 	}
@@ -2436,97 +2959,159 @@ mat4 pop()
 
 void update(void)
 {
-	// code
-	// Water
-	time += 0.01f;
-	// code
-	f+=0.05f;
-	yTransition += 0.001f;
-
-	for (int i = 0; i <= TESSEL_Z; i++)
+	if (intro)
 	{
-		for (int j = 0; j <= TESSEL_X; j++)
+		timmer += 0.005f;
+		angleSaturn = angleSaturn - speed;
+		if (angleSaturn <= -90.0f)
 		{
-			float temp_x = (float)(j + 1) / (float)TESSEL_X;
-			temp_x = (temp_x * 2.0f) - 1.0f;
-
-			float temp_z = (float)(i + 1) / (float)TESSEL_Z;
-			temp_z = (temp_z * 2.0f) - 1.0f;
-			water_y[i][j] = sin(temp_x * freq + time) * sin(temp_z * freq + time) * 0.07f;
+			angleSaturn = -90.0f;
+			astro = TRUE;
 		}
-	}
 
-	xTransBoat = xTransBoat + 0.001f;
-	if (scene == 1)
-	{
-		if (xTransBoat > -9.0f)
+		if (astro == TRUE)
 		{
-			camPosZ = camPosZ - 0.0014f;
-			objPosY = objPosY - 0.0002f;
-
-			if (objPosY < -1.0f || camPosZ < -7.0f)
+			angleAstro = angleAstro - speed;
+			if (angleAstro <= -90.0f)
 			{
-				scene = 2;
+				angleAstro = -90.0f;
+				medi = TRUE;
 			}
 		}
-	}
 
-	if (scene == 2)
-	{
-
-		xPosLeaf = xPosLeaf + 0.0004f;
-		yPosLeaf = yPosLeaf - 0.001f;
-		zPosLeaf = zPosLeaf - 0.0007f;
-		if (xTransBoat >= -0.658583 )
+		if (medi == TRUE)
 		{
-			scene = 3;
-			// yPosLeaf = -3.559915f;
-			// zPosLeaf = -12.591400f;
+			angleMedi = angleMedi - speed;
+			if (angleMedi <= -90.0f)
+			{
+				angleMedi = -90.0f;
+				comp = TRUE;
+			}
+		}
+
+		if (comp == TRUE)
+		{
+			angleComp = angleComp - speed;
+			if (angleComp <= -90.0f)
+			{
+				angleComp = -90.0f;
+				cfg = TRUE;
+			}
+		}
+
+		if (cfg == TRUE)
+		{
+			angleCfg = angleCfg - speed;
+			if (angleCfg <= -90.0f)
+			{
+				angleCfg = -90.0f;
+			}
+		}
+
+		if (timmer >= 5.0f)
+		{
+			intro = FALSE;
 		}
 	}
-
-	if (scene == 3)
+	if (!intro)
 	{
-		xPosLeaf = xPosLeaf + 0.001f;
-		camPosX = camPosX + 0.001f;
-		objPosX = objPosX + 0.001f;
+		// code
+		// Water
+		time += 0.01f;
+		// code
+		f += 0.05f;
+		yTransition += 0.001f;
 
-		if (xTransBoat >= 4.531265)
+		for (int i = 0; i <= TESSEL_Z; i++)
 		{
-			camPosZ = camPosZ + 0.0014f;
-			objPosY = objPosY + 0.0002f;
-			if (objPosY > 0.0f || camPosZ > 0.0f)
+			for (int j = 0; j <= TESSEL_X; j++)
 			{
-				camPosZ = 0.0f;
-				objPosY = 0.0f;
-				transitionPoint = transitionPoint + 0.01f;
-				if(xTransBoat>17.066660 && flag)
-				{
-					xTransBoat = 17.066660;
-					//xPosLeaf = xPosLeaf + 0.001f;
-					yPosLeaf = yPosLeaf + 0.001f;
-					if(yPosLeaf >= -2.801979)
-					{
-						flag = FALSE;
-					}
-					
-				}
+				float temp_x = (float)(j + 1) / (float)TESSEL_X;
+				temp_x = (temp_x * 2.0f) - 1.0f;
 
-				if(flag == FALSE && xTransBoat>17.066660)
+				float temp_z = (float)(i + 1) / (float)TESSEL_Z;
+				temp_z = (temp_z * 2.0f) - 1.0f;
+				water_y[i][j] = sin(temp_x * freq + time) * sin(temp_z * freq + time) * 0.07f;
+			}
+		}
+
+		xTransBoat = xTransBoat + 0.001f;
+		if (scene == 1)
+		{
+			if (xTransBoat > -9.0f)
+			{
+				camPosZ = camPosZ - 0.0014f;
+				objPosY = objPosY - 0.0002f;
+
+				if (objPosY < -1.0f || camPosZ < -7.0f)
+				{
+					scene = 2;
+				}
+			}
+		}
+
+		if (scene == 2)
+		{
+
+			xPosLeaf = xPosLeaf + 0.0004f;
+			yPosLeaf = yPosLeaf - 0.001f;
+			zPosLeaf = zPosLeaf - 0.0007f;
+			if (xTransBoat >= -0.658583)
+			{
+				scene = 3;
+				// yPosLeaf = -3.559915f;
+				// zPosLeaf = -12.591400f;
+			}
+		}
+
+		if (scene == 3)
+		{
+			xPosLeaf = xPosLeaf + 0.001f;
+			camPosX = camPosX + 0.001f;
+			objPosX = objPosX + 0.001f;
+
+			if (xTransBoat >= 4.531265)
+			{
+				camPosZ = camPosZ + 0.0014f;
+				objPosY = objPosY + 0.0002f;
+				if (objPosY > 0.0f || camPosZ > 0.0f)
+				{
+					camPosZ = 0.0f;
+					objPosY = 0.0f;
+					transitionPoint = transitionPoint + 0.01f;
+					if (xTransBoat > 17.066660 && flag)
+					{
+						xTransBoat = 17.066660;
+						// xPosLeaf = xPosLeaf + 0.001f;
+						yPosLeaf = yPosLeaf + 0.001f;
+						if (yPosLeaf >= -2.801979)
+						{
+							flag = FALSE;
+						}
+					}
+
+					if (flag == FALSE && xTransBoat > 17.066660)
 					{
 						xTransBoat = 17.066660;
 						yPosLeaf = yPosLeaf - 0.0001f;
-						if(yPosLeaf <= -2.905172)
+						if (yPosLeaf <= -2.905172)
 						{
 							scene = 4;
+							timmer = 0.0f;
 						}
 					}
+				}
 			}
 		}
-	}
-	if(scene == 4)
-	{
-		xTransBoat = 17.066660;
+		if (scene == 4)
+		{
+			xTransBoat = 17.066660;
+			timmer += 0.1f;
+			if (timmer >= 5.0f)
+			{
+				end = TRUE;
+			}
+		}
 	}
 
 	// Iland
@@ -2562,15 +3147,13 @@ void uninitialize(void)
 		VBO_boat_position = 0;
 	}
 
-	
-
 	if (VBO_boat_texcoord)
 	{
 		glDeleteBuffers(1, &VBO_boat_texcoord);
 		VBO_boat_texcoord = 0;
 	}
-	//Deletetion and Uninitialization of VAO
-	
+	// Deletetion and Uninitialization of VAO
+
 	// Deletetion and Uninitialization of VAO_WATER
 	if (VAO_BOAT)
 	{
@@ -2595,15 +3178,15 @@ void uninitialize(void)
 	// 	glDeleteBuffers(1, &VBO_NORMAL);
 	// 	VBO_NORMAL = 0;
 	// }
-	//Shader unitialization
+	// Shader unitialization
 	if (SPObj_Boat)
 	{
 		glUseProgram(SPObj_Boat);
-		
+
 		GLsizei numAttachedShaders;
 		glGetProgramiv(SPObj_Boat, GL_ATTACHED_SHADERS, &numAttachedShaders);
-		GLuint* shaderObjects = NULL;
-		shaderObjects = (GLuint*)malloc(numAttachedShaders * sizeof(GLuint));
+		GLuint *shaderObjects = NULL;
+		shaderObjects = (GLuint *)malloc(numAttachedShaders * sizeof(GLuint));
 		glGetAttachedShaders(SPObj_Boat, numAttachedShaders, &numAttachedShaders, shaderObjects);
 		for (GLsizei i = 0; i < numAttachedShaders; i++)
 		{
