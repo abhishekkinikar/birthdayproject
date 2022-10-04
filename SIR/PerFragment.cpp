@@ -175,11 +175,16 @@ GLuint VBO_intro_back;
 float timmer = 0.0f;
 
 // end
-
+GLuint SPObj_Birthday;
 GLuint texture_Birthday;
 GLuint VAO_Birthday;
 GLuint VBO_Birthday_position;
 GLuint VBO_Birthday_texcoord;
+
+GLuint modelMatrixUniform_Birthday;
+GLuint viewMatrixUniform_Birthday;
+GLuint projectionMatrixUniform_Birthday;
+GLuint TSU_Birthday;
 
 BOOL end = FALSE;
 
@@ -192,7 +197,8 @@ float xRotate = 0.0f;
 float cameraRadius = 30.0f;
 int scene = 1;
 BOOL flag = TRUE;
-BOOL intro = TRUE;
+BOOL boatFlag = TRUE;
+int intro = 0;
 
 GLfloat camPosZ = 0.0f;
 GLfloat camPosX = 0.0f;
@@ -1259,53 +1265,169 @@ int initialize(void)
 	glBindVertexArray(0);
 
 	// end
-	const GLfloat quadPosition_end[] =
-		{
-			// front
-			1.0f,
-			1.0f,
-			1.0f,
-			-1.0f,
-			1.0f,
-			1.0f,
-			-1.0f,
-			-1.0f,
-			1.0f,
-			1.0f,
-			-1.0f,
-			1.0f,
-		};
+	//Vertex Shader
+	//Source code
+	const GLchar* vertexShaderSourceCode_end =
+		"#version 440 core" \
+		"\n" \
+		"in vec4 a_position;" \
+		"in vec2 a_texcoord;" \
+		"uniform mat4 u_modelMatrix;" \
+		"uniform mat4 u_viewMatrix;" \
+		"uniform mat4 u_projectionMatrix;" \
+		"uniform mat4 u_mvpMatrix;" \
+		"out vec2 a_texcoord_out;" \
+		"void main(void)" \
+		"{" \
+		"gl_Position = u_projectionMatrix * u_viewMatrix* u_modelMatrix * a_position;" \
+		"a_texcoord_out = a_texcoord;" 
+		"}";
+	//Object create kel
+	vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
+	//Tyala code dila
+	glShaderSource(vertexShaderObject, 1, (const GLchar **)&vertexShaderSourceCode_end, NULL); 
+	//Compile kela ithe
+	glCompileShader(vertexShaderObject);
+	//Error Checking
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
 
-	const GLfloat quadTexcoord_end[] =
+	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);//
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
 		{
-			0.0f,
-			0.0f,
-			1.0f,
-			0.0f,
-			1.0f,
-			1.0f,
-			0.0f,
-			1.0f,
-		};
+			log = (char*)malloc(infoLogLength);
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(vertexShaderObject, infoLogLength, &written, log);
+				fprintf(gpFile, "Vertex Shader Compilation Log: %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+	
+	//fragment Shader
+	const GLchar* fragmentShaderSourceCode_end =
+		"#version 440 core" \
+		"\n" \
+		"in vec2 a_texcoord_out;" \
+		"uniform sampler2D u_textureSampler;" \
+		"out vec4 FragColor;" \
+		"void main(void)" \
+		"{" \
+		"FragColor = texture(u_textureSampler, a_texcoord_out);" \
+		"}";
 
-	// VAO and VBO related code
-	// VAO
-	glGenVertexArrays(1, &VAO_Birthday); // 5th step
+	//Object creation
+	fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+	//Tyala 
+	glShaderSource(fragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode_end, NULL); 
+	//Compile
+	glCompileShader(fragmentShaderObject);
+
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetShaderiv(fragmentShaderObject, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (CHAR*)malloc(infoLogLength);
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(fragmentShaderObject, infoLogLength, &written, log);
+				fprintf(gpFile, "Fragment Shader Compilation Log: %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+	//Shader program Object
+	//Create shader object
+	SPObj_Birthday = glCreateProgram();
+	//Attach shader object
+	glAttachShader(SPObj_Birthday, vertexShaderObject);
+	glAttachShader(SPObj_Birthday, fragmentShaderObject);
+
+	//
+	glBindAttribLocation(SPObj_Birthday, AMC_ATTRIBUTE_POSITION, "a_position"); 
+	glBindAttribLocation(SPObj_Birthday, AMC_ATTRIBUTE_TEXTURE0, "a_texcoord");   
+	//Link the shader program object
+	glLinkProgram(SPObj_Birthday);
+
+	// linking che Error
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	modelMatrixUniform_Birthday = glGetUniformLocation(SPObj_Birthday, "u_modelMatrix");
+	viewMatrixUniform_Birthday = glGetUniformLocation(SPObj_Birthday, "u_viewMatrix"); // ***Andhar***
+	projectionMatrixUniform_Birthday = glGetUniformLocation(SPObj_Birthday, "u_projectionMatrix"); // ***Andhar***
+	TSU_Birthday = glGetUniformLocation(SPObj_Birthday, "u_textureSampler"); 
+	glGetProgramiv(SPObj_Birthday, GL_LINK_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetProgramiv(SPObj_Birthday, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength >= 0)
+		{
+			log = (CHAR*)malloc(infoLogLength);
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetProgramInfoLog(SPObj_Birthday, infoLogLength, &written, log);
+				fprintf(gpFile, "Shader program's link log: %s\n", log);
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+	
+
+	const GLfloat quadPosition[] =
+	{
+		// front
+		1.0f, 1.0f, 1.0f,
+	   -1.0f, 1.0f, 1.0f,
+	   -1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f,
+	};
+
+	const GLfloat quadTexcoord[] =
+	{
+		0.0f, 0.0f, 
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+	};
+
+	//VAO and VBO related code
+	//VAO
+	glGenVertexArrays(1, &VAO_Birthday); //5th step
 	glBindVertexArray(VAO_Birthday);
-	// VBO for position
+	//VBO for position
 	glGenBuffers(1, &VBO_Birthday_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_Birthday_position);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadPosition_end), quadPosition_end, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadPosition), quadPosition, GL_STATIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// VBO for texture
+	//VBO for texture
 	glGenBuffers(1, &VBO_Birthday_texcoord);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_Birthday_texcoord);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadTexcoord_end), quadTexcoord_end, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadTexcoord), quadTexcoord, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL); 
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_TEXTURE0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -2302,23 +2424,26 @@ void display(void)
 
 	// code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (intro)
+	if (intro == 0)
 	{
 		introFunc();
 	}
 
-	if (end==TRUE)
+	if (end)
 	{
+		push(modelMatrix);
+		viewMatrix = mat4::identity();
 		endfunc();
+		modelMatrix = pop();
 	}
 
-	if (!intro)
+	if (intro == 1)
 	{
 
 		// use the shader program object
 		glUseProgram(SPObj_Water);
 
-		viewMatrix = lookat(vec3(camPosX, 0.0f, camPosZ), vec3(objPosX, objPosY, -10.0f), vec3(0.0f, 1.0f, 0.0f));
+		viewMatrix = lookat(vec3(camPosX, camPosY, camPosZ), vec3(objPosX, objPosY, -10.0f), vec3(0.0f, 1.0f, 0.0f));
 		push(modelMatrix);
 
 		translationMatrix = vmath::translate(0.0f, -3.8f, -5.0f);
@@ -2635,28 +2760,28 @@ void endfunc()
 	void push(mat4);
 	mat4 pop(void);
 
-	glUseProgram(SPObj_Boat);
+	glUseProgram(SPObj_Birthday);
 	push(modelMatrix);
 
 	modelMatrix = vmath::translate(0.0f, 0.0f, -3.0f);
 	modelMatrix *= vmath::scale(1.5f, 1.0f, 1.0f);
 
-	glUniformMatrix4fv(modelMatrixUniform_boat, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_boat, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_boat, 1, GL_FALSE, perspectiveProjectionMatrix);
-
+	glUniformMatrix4fv(modelMatrixUniform_Birthday, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_Birthday, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_Birthday, 1, GL_FALSE, perspectiveProjectionMatrix);
+	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_Birthday);
-	glUniform1i(TSU_boat, 0);
+	glUniform1i(TSU_Birthday, 0);
 
 	glBindVertexArray(VAO_Birthday);
 
-	// Here there shouls be drawing code
+	//Here there shouls be drawing code
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	glBindVertexArray(0);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D,0);
 	modelMatrix = pop();
 	glUseProgram(0);
 }
@@ -2733,7 +2858,7 @@ void shivling(void)
 	glBindVertexArray(0);
 
 	// draw shivling
-	modelMatrix = translate(0.7f + 20.0f, -3.45f + 0.5f, -10.0f - 3.0f);
+	modelMatrix = translate(0.65f + 20.0f, -3.45f + 0.5f, -10.0f - 3.0f);
 	modelMatrix *= scale(0.3f, 0.075f, 0.1f);
 
 	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
@@ -3117,7 +3242,7 @@ mat4 pop()
 
 void update(void)
 {
-	if (intro)
+	if (intro == 0)
 	{
 		timmer += 0.005f;
 		angleSaturn = angleSaturn - speed;
@@ -3168,11 +3293,11 @@ void update(void)
 
 		if (timmer >= 5.0f)
 		{
-			intro = FALSE;
+			intro = 1;
 			timmer = 0.0f;
 		}
 	}
-	if (!intro)
+	if (intro == 1)
 	{
 		// code
 		// Water
@@ -3229,7 +3354,7 @@ void update(void)
 			camPosX = camPosX + 0.001f;
 			objPosX = objPosX + 0.001f;
 
-			if (xTransBoat >= 4.531265)
+			if (xTransBoat >= 4.531265 && boatFlag)
 			{
 				camPosZ = camPosZ + 0.0014f;
 				objPosY = objPosY + 0.0002f;
@@ -3237,6 +3362,7 @@ void update(void)
 				{
 					camPosZ = 0.0f;
 					objPosY = 0.0f;
+					boatFlag = FALSE;
 					transitionPoint = transitionPoint + 0.01f;
 					if (xTransBoat > 17.066660 && flag)
 					{
@@ -3261,14 +3387,53 @@ void update(void)
 					}
 				}
 			}
+
+
+
+			if (xTransBoat >= 4.531265 && !boatFlag)
+			{
+				camPosZ = camPosZ - 0.001f;
+				camPosY = camPosY - 0.00025f;
+				objPosY = objPosY - 0.00025f;
+				// if (camPosY < 0.0f || camPosZ < 0.0f)
+				// {
+					// camPosZ = 0.0f;
+					// objPosY = 0.0f;
+					transitionPoint = transitionPoint + 0.01f;
+					if (xTransBoat > 17.066660 && flag)
+					{
+						xTransBoat = 17.066660;
+						// xPosLeaf = xPosLeaf + 0.001f;
+						yPosLeaf = yPosLeaf + 0.001f;
+						if (yPosLeaf >= -2.801979)
+						{
+							flag = FALSE;
+
+						}
+					}
+
+					if (flag == FALSE && xTransBoat >= 17.066660)
+					{
+						xTransBoat = 17.066660;
+						yPosLeaf = yPosLeaf - 0.0001f;
+						if (yPosLeaf <= -2.905172)
+						{
+							scene = 4;
+						}
+					}
+				// }
+			}
+
+
 		}
 		if (scene == 4)
 		{
 			xTransBoat = 17.066660;
-			timmer += 0.1f;
+			timmer += 0.01f;
 			if (timmer >= 5.0f)
 			{
 				end = TRUE;
+				intro = 2;
 			}
 		}
 	}
