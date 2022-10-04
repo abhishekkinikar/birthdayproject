@@ -138,7 +138,7 @@ GLuint lightingEnabledUniform_Iland;
 
 GLuint laUniform_Iland; // Light Ambient
 GLuint ldUniform_Iland; // Light Diffuse
-GLuint lsUniform_Iland; // Light Specular
+//GLuint lsUniform_Iland; // Light Specular
 GLuint lightPositionUniform_Iland;
 
 GLuint kaUniform_Iland;
@@ -203,8 +203,8 @@ GLfloat cylinderNormals[CIRCLE_POINTS * 4 * 3];
 float angleCylinder = 0.0f;
 
 GLfloat lightAmbient_Iland[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat lightDiffuse_Iland[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat lightSpecular_Iland[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat lightDiffuse_Iland[] = {1.0, 1.0, 0.0, 1.0};
+//GLfloat lightSpecular_Iland[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat lightPosition_Iland[] = {0.0, 100.0, 0.0, 1.0};
 
 GLfloat MaterialAmbient_Iland[4];
@@ -258,7 +258,7 @@ BOOL bLight = FALSE;
 // GLfloat materialSpecular[] = { 1.0f ,1.0f ,1.0f ,1.0f };
 // GLfloat materialShininess = 50.0f;
 
-GLfloat lightAmbient[] = {0.1f, 0.1f, 0.1f, 1.0f};
+GLfloat lightAmbient[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat lightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat lightPosition[] = {0.0, 100.0, 0.0, 1.0};
@@ -1398,7 +1398,7 @@ int initialize(void)
 		"vec3 reflectionVector=reflect(-normalized_lightDirection,normalized_transformedNormals);"
 		"vec3 normalized_viewerVector = normalize(viewerVector);"
 		"vec3 specular=u_ls * u_ks * pow(max(dot(reflectionVector,normalized_viewerVector),0.0),u_materialShineness);"
-		"fong_ads_light = ambient + diffuse + specular;"
+		"fong_ads_light = ambient + diffuse;"
 		"}"
 		"else"
 		"{"
@@ -1457,7 +1457,7 @@ int initialize(void)
 
 	laUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_la");
 	ldUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_ld");
-	lsUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_ls");
+	//lsUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_ls");
 	lightPositionUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_lightPosition");
 
 	kaUniform_Iland = glGetUniformLocation(SPObj_Iland, "u_ka");
@@ -2310,7 +2310,7 @@ void display(void)
 		glUniform1i(lightingEnabledUniform_Iland, 1);
 		glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
 		glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
-		glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
+		//glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
 		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
 
 		// ambient material
@@ -2359,6 +2359,7 @@ void display(void)
 		modelMatrix *= scale(0.5f, 0.5f, 0.5f);
 		drawTree(8.0f);
 
+		glUniform1i(lightingEnabledUniform_Iland, 0);
 		modelMatrix = pop();
 
 		push(modelMatrix);
@@ -2367,7 +2368,7 @@ void display(void)
 
 		glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
 		glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
-		glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
+		//glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
 		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
 
 		// ambient material
@@ -2385,11 +2386,11 @@ void display(void)
 		glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
 
 		// specular material
-		MaterialSpecular_Iland[0] = 0.60; // r
-		MaterialSpecular_Iland[1] = 0.60; // g
-		MaterialSpecular_Iland[2] = 0.50; // b
-		MaterialSpecular_Iland[3] = 1.0f; // a
-		glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
+		// MaterialSpecular_Iland[0] = 0.60; // r
+		// MaterialSpecular_Iland[1] = 0.60; // g
+		// MaterialSpecular_Iland[2] = 0.50; // b
+		// MaterialSpecular_Iland[3] = 1.0f; // a
+		// glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
 
 		// shininess
 		MaterialShininess_Iland = 0.25 * 128;
@@ -2417,37 +2418,6 @@ void display(void)
 		push(modelMatrix);
 		modelMatrix *= translate(xPosLeaf, yPosLeaf, zPosLeaf);
 		modelMatrix *= rotate(35.0f, 0.0f, 0.0f, 1.0f);
-		glUniform1i(lightingEnabledUniform_Iland, 1);
-
-		glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
-		glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
-		glUniform3fv(lsUniform_Iland, 1, lightSpecular_Iland);
-		glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
-
-		// ambient material
-		MaterialAmbient_Iland[0] = 0.0;	 // r
-		MaterialAmbient_Iland[1] = 0.0;	 // g
-		MaterialAmbient_Iland[2] = 0.0;	 // b
-		MaterialAmbient_Iland[3] = 1.0f; // a
-		glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
-
-		// diffuse material
-		MaterialDiffuse_Iland[0] = 0.5;	 // r
-		MaterialDiffuse_Iland[1] = 0.5;	 // g
-		MaterialDiffuse_Iland[2] = 0.0;	 // b
-		MaterialDiffuse_Iland[3] = 1.0f; // a
-		glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
-
-		// specular material
-		MaterialSpecular_Iland[0] = 0.60; // r
-		MaterialSpecular_Iland[1] = 0.60; // g
-		MaterialSpecular_Iland[2] = 0.50; // b
-		MaterialSpecular_Iland[3] = 1.0f; // a
-		glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
-
-		// shininess
-		MaterialShininess_Iland = 0.25 * 128;
-		glUniform1f(materialShinenessUniform_Iland, MaterialShininess_Iland);
 		
 		drawLeaf();
 		modelMatrix = pop();
@@ -2560,31 +2530,31 @@ void shivling(void)
 
 	glUniform1i(lightingEnabledUniform_Iland, 1);
 
-	glUniform3fv(laUniform_Iland, 1, lightAmbient);
-	glUniform3fv(ldUniform_Iland, 1, lightDiffuse);
-	glUniform3fv(lsUniform_Iland, 1, lightSpecular);
-	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition);
+	glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
+	glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
+	//glUniform3fv(lsUniform_Iland, 1, lightSpecular);
+	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
 
 	// ambient material
-	materialAmbient[0] = 0.05375; // r
-	materialAmbient[1] = 0.05;	  // g
-	materialAmbient[2] = 0.06625; // b
-	materialAmbient[3] = 1.0f;	  // a
-	glUniform3fv(kaUniform_Iland, 1, materialAmbient);
+	MaterialAmbient_Iland[0] = 0.05375; // r
+	MaterialAmbient_Iland[1] = 0.05;	  // g
+	MaterialAmbient_Iland[2] = 0.06625; // b
+	MaterialAmbient_Iland[3] = 1.0f;	  // a
+	glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
 
 	// diffuse material
-	materialDiffuse[0] = 0.18275; // r
-	materialDiffuse[1] = 0.17;	  // g
-	materialDiffuse[2] = 0.22525; // b
-	materialDiffuse[3] = 1.0f;	  // a
-	glUniform3fv(kdUniform_Iland, 1, materialDiffuse);
+	MaterialDiffuse_Iland[0] = 0.18275; // r
+	MaterialDiffuse_Iland[1] = 0.17;	  // g
+	MaterialDiffuse_Iland[2] = 0.22525; // b
+	MaterialDiffuse_Iland[3] = 1.0f;	  // a
+	glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
 
 	// specular material
-	materialSpecular[0] = 0.332741; // r
-	materialSpecular[1] = 0.328634; // g
-	materialSpecular[2] = 0.346435; // b
-	materialSpecular[3] = 1.0f;		// a
-	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+	MaterialSpecular_Iland[0] = 0.332741; // r
+	MaterialSpecular_Iland[1] = 0.328634; // g
+	MaterialSpecular_Iland[2] = 0.346435; // b
+	MaterialSpecular_Iland[3] = 1.0f;		// a
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular_Iland);
 
 	// shininess
 	materialShininess = 0.3 * 128;
@@ -2612,7 +2582,7 @@ void shivling(void)
 	glBindVertexArray(0);
 
 	// draw shivling
-	modelMatrix = translate(0.6f + 20.0f, -3.45f + 0.5f, -10.0f - 3.0f);
+	modelMatrix = translate(0.7f + 20.0f, -3.45f + 0.5f, -10.0f - 3.0f);
 	modelMatrix *= scale(0.3f, 0.075f, 0.1f);
 
 	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
@@ -2634,35 +2604,35 @@ void shivling(void)
 
 	glUniform1i(lightingEnabledUniform_Iland, 1);
 
-	glUniform3fv(laUniform_Iland, 1, lightAmbient);
-	glUniform3fv(ldUniform_Iland, 1, lightDiffuse);
-	glUniform3fv(lsUniform_Iland, 1, lightSpecular);
-	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition);
+	glUniform3fv(laUniform_Iland, 1, lightAmbient_Iland);
+	glUniform3fv(ldUniform_Iland, 1, lightDiffuse_Iland);
+	//glUniform3fv(lsUniform_Iland, 1, lightSpecular);
+	glUniform4fv(lightPositionUniform_Iland, 1, lightPosition_Iland);
 
 	// ambient material
-	materialAmbient[0] = 0.0;  // r
-	materialAmbient[1] = 0.0;  // g
-	materialAmbient[2] = 0.0;  // b
-	materialAmbient[3] = 1.0f; // a
-	glUniform3fv(kaUniform_Iland, 1, materialAmbient);
+	MaterialAmbient_Iland[0] = 0.0215; // r
+	MaterialAmbient_Iland[1] = 0.1745; // g
+	MaterialAmbient_Iland[2] = 0.0215; // b
+	MaterialAmbient_Iland[3] = 1.0f;   // m
+	glUniform3fv(kaUniform_Iland, 1, MaterialAmbient_Iland);
 
 	// diffuse material
-	materialDiffuse[0] = 0.5;  // r
-	materialDiffuse[1] = 0.5;  // g
-	materialDiffuse[2] = 0.0;  // b
-	materialDiffuse[3] = 1.0f; // a
-	glUniform3fv(kdUniform_Iland, 1, materialDiffuse);
+	MaterialDiffuse_Iland[0] = 0.07568; // r
+	MaterialDiffuse_Iland[1] = 0.61424; // g
+	MaterialDiffuse_Iland[2] = 0.07568; // b
+	MaterialDiffuse_Iland[3] = 1.0f;    // a
+	glUniform3fv(kdUniform_Iland, 1, MaterialDiffuse_Iland);
 
 	// specular material
-	materialSpecular[0] = 0.60; // r
-	materialSpecular[1] = 0.60; // g
-	materialSpecular[2] = 0.50; // b
-	materialSpecular[3] = 1.0f; // a
-	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+	// materialSpecular[0] = 0.60; // r
+	// materialSpecular[1] = 0.60; // g
+	// materialSpecular[2] = 0.50; // b
+	// materialSpecular[3] = 1.0f; // a
+	// glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
 
 	// shininess
-	materialShininess = 0.25 * 128;
-	glUniform1f(materialShinenessUniform_Iland, materialShininess);
+	// materialShininess = 0.25 * 128;
+	// glUniform1f(materialShinenessUniform_Iland, materialShininess);
 
 	modelMatrix *= translate(3.0f + 20.0f, -4.0f + 0.5f, -10.0f - 3.0f);
 	modelMatrix *= scale(10.0f, 1.0f, 10.0f);
