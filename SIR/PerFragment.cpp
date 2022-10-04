@@ -113,14 +113,6 @@ GLuint gVbo_sphere_position;
 GLuint gVbo_sphere_normal;
 GLuint gVbo_sphere_element;
 
-GLuint vao_leaf;
-GLuint vbo_leaf_position;
-GLuint vbo_leaf_color;
-
-GLuint vao_triangle;		  // vao : vertex array object
-GLuint vbo_triangle_position; // vbo_position : vertex buffer object
-GLuint vbo_triangle_color;
-
 GLuint vao_cylender;
 GLuint vbo_cylender;
 GLuint vbo_normal_cylender;
@@ -149,6 +141,20 @@ GLuint materialShinenessUniform_Iland;
 // GLfloat xPosLeaf = -1.2f;
 // GLfloat yPosLeaf = -0.05f;
 // GLfloat zPosLeaf = -10.0f;
+
+// leaf 
+GLuint vao_leaf;
+GLuint vbo_leaf_position;
+GLuint vbo_leaf_color;
+
+GLuint vao_triangle;		  // vao : vertex array object
+GLuint vbo_triangle_position; // vbo_position : vertex buffer object
+GLuint vbo_triangle_color;
+
+GLuint modelMatrixUniform_leaf;
+GLuint viewMatrixUniform_leaf;
+GLuint projectionMatrixUniform_leaf;
+GLuint SPObj_leaf;
 
 GLfloat xPosLeaf = -1.1f;
 GLfloat yPosLeaf = -0.1f;
@@ -1496,44 +1502,7 @@ int initialize(void)
 	gNumVertices = getNumberOfSphereVertices();
 	gNumElements = getNumberOfSphereElements();
 
-	const GLfloat trianglePosition[] =
-		{
-			0.0f,
-			1.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-			-0.5f,
-			0.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-			-0.3f,
-			0.5f,
-			0.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-			0.3f,
-			0.5f,
-			0.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-		};
-
-	const GLfloat triangleColor[] =
-		{
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f};
+	
 
 	GLfloat shivlingPosition[] = {
 		// top
@@ -1659,74 +1628,7 @@ int initialize(void)
 		-1.0f, 0.0f, 0.0f, // bottom-right of left
 	};
 
-	float angle = 0.0f;
-	GLfloat leafPosition[66]; // 22 points * 3
-	GLfloat leafColor[66];
-	leafColor[0] = 0.0f;
-	leafColor[0] = 1.0f;
-	leafColor[0] = 0.0f;
 
-	leafPosition[0] = 0.0f;
-	leafPosition[1] = 0.0f;
-	leafPosition[2] = 0.0f;
-	for (int i = 3; i < 66;)
-	{
-		float rad = angle * PI / 180.0f;
-		float x = 0.5f * cos(rad);
-		leafPosition[i] = x;
-		leafColor[i] = 0.0f;
-		i++;
-		float y = 0.5f * sin(rad);
-		leafPosition[i] = y;
-		leafColor[i] = 1.0f;
-		i++;
-		leafPosition[i] = 0.0f;
-		leafColor[i] = 0.0f;
-		i++;
-		angle = angle + 18.0f;
-	}
-
-	glGenVertexArrays(1, &vao_triangle);
-	glBindVertexArray(vao_triangle);
-
-	// vbo for position
-	glGenBuffers(1, &vbo_triangle_position);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle_position);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(trianglePosition), trianglePosition, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-
-	// vbo for color
-	glGenBuffers(1, &vbo_triangle_color);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle_color);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleColor), triangleColor, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(AMC_ATTRIBUTE_COLOR);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// vao unbinding
-	glBindVertexArray(0);
-
-	// vao for leaf
-	glGenVertexArrays(1, &vao_leaf);
-	glBindVertexArray(vao_leaf);
-
-	// vbo for leaf_position
-	glGenBuffers(1, &vbo_leaf_position);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_leaf_position);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(leafPosition), leafPosition, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// vbo for color
-	glGenBuffers(1, &vbo_leaf_color);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_leaf_color);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(leafColor), leafColor, GL_STATIC_DRAW);
-	glVertexAttribPointer(AMC_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(AMC_ATTRIBUTE_COLOR);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// unbind vao
-	glBindVertexArray(0);
 
 	// vao
 	glGenVertexArrays(1, &gVao_sphere);
@@ -1941,6 +1843,249 @@ int initialize(void)
 	viewMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_viewMatrix");
 	projectionMatrixUniform_sunrise = glGetUniformLocation(shaderProgramObject_sunrise, "u_projectionMatrix");
 	changeColorUniform = glGetUniformLocation(shaderProgramObject_sunrise, "u_changeColor");
+
+	// Vertex Shader
+	const GLchar* vertexShaderSourceCode_leaf =
+		"#version 440 core" \
+		"\n" \
+		"in vec4 a_position;" \
+		"in vec4 a_color;" \
+		"uniform mat4 u_modelMatrix;" \
+		"uniform mat4 u_viewMatrix;" \
+		"uniform mat4 u_projectionMatrix;" \
+		"out vec4 a_color_out;" \
+		"void main(void)" \
+		"{" \
+		"gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * a_position;" \
+		"a_color_out = a_color;" \
+		"}";
+
+	// Create shader object
+	vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
+
+	// Give source code to shader object
+	glShaderSource(vertexShaderObject, 1, (const GLchar**)&vertexShaderSourceCode_leaf, NULL);
+
+	//Compile Shader
+	glCompileShader(vertexShaderObject);
+
+	status;
+	infoLogLength;
+	log = NULL;
+
+	// Getting length of log of compilation status
+	glGetShaderiv(vertexShaderObject, GL_COMPILE_STATUS, &status);
+
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(vertexShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(infoLogLength);
+
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(vertexShaderObject, infoLogLength, &written, log);
+
+				fprintf(gpFile, "Vertex shader compilation log : %s\n", log);
+
+				free(log);
+
+				uninitialize();
+			}
+		}
+	}
+
+	// Fragment Shader
+	const GLchar *fragmentShaderSourceCode_leaf=
+		"#version 440 core" \
+		"\n" \
+		"in vec4 a_color_out;"
+		"out vec4 FragColor;" \
+		"void main(void)" \
+		"{" \
+		"FragColor = a_color_out;" \
+		"}";
+	fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(fragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode_leaf, NULL);
+
+	glCompileShader(fragmentShaderObject);
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetShaderiv(fragmentShaderObject, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetShaderiv(fragmentShaderObject, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(infoLogLength);
+
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetShaderInfoLog(fragmentShaderObject, infoLogLength, &written, log);
+				fprintf(gpFile, "Fragment shader compilation log : %s \n", log);
+
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+
+	// Shader program object.
+	SPObj_leaf = glCreateProgram();
+	
+	// Attach desire shader
+	glAttachShader(SPObj_leaf, vertexShaderObject);
+	glAttachShader(SPObj_leaf, fragmentShaderObject);
+
+	// Pre linked binding
+	glBindAttribLocation(SPObj_leaf, AMC_ATTRIBUTE_POSITION, "a_position");  // ***Andhar***		
+	glBindAttribLocation(SPObj_leaf, AMC_ATTRIBUTE_COLOR, "a_color");  // ***Andhar***		
+
+	// Link program
+	glLinkProgram(SPObj_leaf);
+
+	// Post link retriving
+	modelMatrixUniform_leaf = glGetUniformLocation(SPObj_leaf, "u_modelMatrix");
+	viewMatrixUniform_leaf = glGetUniformLocation(SPObj_leaf, "u_viewMatrix");
+	projectionMatrixUniform_leaf = glGetUniformLocation(SPObj_leaf, "u_projectionMatrix");
+
+	status = 0;
+	infoLogLength = 0;
+	log = NULL;
+
+	glGetProgramiv(SPObj_leaf, GL_LINK_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		glGetProgramiv(SPObj_leaf, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (infoLogLength > 0)
+		{
+			log = (char*)malloc(infoLogLength);
+
+			if (log != NULL)
+			{
+				GLsizei written;
+				glGetProgramInfoLog(SPObj_leaf, infoLogLength, &written, log);
+
+				fprintf(gpFile, "Shader Program Link log : %s\n", log);
+
+				free(log);
+				uninitialize();
+			}
+		}
+	}
+	const GLfloat trianglePosition[] =
+		{
+			0.0f,
+			1.0f,
+			0.0f,
+			0.0f,
+			0.0f,
+			0.0f,
+			0.0f,
+			-0.5f,
+			0.0f,
+			0.0f,
+			0.0f,
+			0.0f,
+			-0.3f,
+			0.5f,
+			0.0f,
+			0.0f,
+			0.0f,
+			0.0f,
+			0.3f,
+			0.5f,
+			0.0f,
+			0.0f,
+			0.0f,
+			0.0f,
+		};
+
+	const GLfloat triangleColor[] =
+		{
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f};
+
+		float angle = 0.0f;
+	GLfloat leafPosition[66]; // 22 points * 3
+	GLfloat leafColor[66];
+	leafColor[0] = 0.0f;
+	leafColor[0] = 1.0f;
+	leafColor[0] = 0.0f;
+
+	leafPosition[0] = 0.0f;
+	leafPosition[1] = 0.0f;
+	leafPosition[2] = 0.0f;
+	for (int i = 3; i < 66;)
+	{
+		float rad = angle * PI / 180.0f;
+		float x = 0.5f * cos(rad);
+		leafPosition[i] = x;
+		leafColor[i] = 0.0f;
+		i++;
+		float y = 0.5f * sin(rad);
+		leafPosition[i] = y;
+		leafColor[i] = 1.0f;
+		i++;
+		leafPosition[i] = 0.0f;
+		leafColor[i] = 0.0f;
+		i++;
+		angle = angle + 18.0f;
+	}
+
+	glGenVertexArrays(1, &vao_triangle);
+	glBindVertexArray(vao_triangle);
+
+	// vbo for position
+	glGenBuffers(1, &vbo_triangle_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle_position);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(trianglePosition), trianglePosition, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+
+	// vbo for color
+	glGenBuffers(1, &vbo_triangle_color);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle_color);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleColor), triangleColor, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_COLOR);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// vao unbinding
+	glBindVertexArray(0);
+
+	// vao for leaf
+	glGenVertexArrays(1, &vao_leaf);
+	glBindVertexArray(vao_leaf);
+
+	// vbo for leaf_position
+	glGenBuffers(1, &vbo_leaf_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_leaf_position);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(leafPosition), leafPosition, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// vbo for color
+	glGenBuffers(1, &vbo_leaf_color);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_leaf_color);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(leafColor), leafColor, GL_STATIC_DRAW);
+	glVertexAttribPointer(AMC_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(AMC_ATTRIBUTE_COLOR);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// unbind vao
+	glBindVertexArray(0);
 
 	// Depth related changes
 	glClearDepth(1.0f);
@@ -2361,7 +2506,7 @@ void display(void)
 
 		glUniform1i(lightingEnabledUniform_Iland, 0);
 		modelMatrix = pop();
-
+		
 		push(modelMatrix);
 
 		glUniform1i(lightingEnabledUniform_Iland, 1);
@@ -2414,14 +2559,20 @@ void display(void)
 		glBindVertexArray(0);
 		glUniform1i(lightingEnabledUniform_Iland, 0);
 		modelMatrix = pop();
+		glUseProgram(0);
+
+		glUseProgram(SPObj_leaf);
 
 		push(modelMatrix);
+		
 		modelMatrix *= translate(xPosLeaf, yPosLeaf, zPosLeaf);
 		modelMatrix *= rotate(35.0f, 0.0f, 0.0f, 1.0f);
 		
 		drawLeaf();
+		
 		modelMatrix = pop();
 		// unUse the shader program object
+		
 
 		// Sun
 		push(modelMatrix);
@@ -2893,9 +3044,9 @@ void drawLeaf()
 	push(modelMatrix);
 	// modelMatrix *= translate(0.0f, 0.0f, -7.0f);
 	modelMatrix *= scale(0.1f, 0.1f, 0.1f);
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glUniformMatrix4fv(modelMatrixUniform_leaf, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_leaf, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_leaf, 1, GL_FALSE, perspectiveProjectionMatrix);
 
 	glBindVertexArray(vao_triangle);
 
@@ -2912,9 +3063,9 @@ void drawLeaf()
 	modelMatrix *= translate(0.0f, 0.1f, 0.0f);
 	modelMatrix *= scale(0.05f, 0.1f, 0.05f);
 
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glUniformMatrix4fv(modelMatrixUniform_leaf, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_leaf, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_leaf, 1, GL_FALSE, perspectiveProjectionMatrix);
 
 	glBindVertexArray(vao_leaf);
 
@@ -2927,9 +3078,9 @@ void drawLeaf()
 	modelMatrix *= translate(-0.05f, 0.07f, 0.0f);
 	modelMatrix *= rotate(35.0f, 0.0f, 0.0f, 1.0f);
 	modelMatrix *= scale(0.03f, 0.06f, 0.03f);
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glUniformMatrix4fv(modelMatrixUniform_leaf, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_leaf, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_leaf, 1, GL_FALSE, perspectiveProjectionMatrix);
 
 	glBindVertexArray(vao_leaf);
 
@@ -2942,9 +3093,9 @@ void drawLeaf()
 	modelMatrix *= translate(0.05f, 0.07f, 0.0f);
 	modelMatrix *= rotate(325.0f, 0.0f, 0.0f, 1.0f);
 	modelMatrix *= scale(0.03f, 0.06f, 0.03f);
-	glUniformMatrix4fv(modelMatrixUniform_Iland, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix4fv(viewMatrixUniform_Iland, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(projectionMatrixUniform_Iland, 1, GL_FALSE, perspectiveProjectionMatrix);
+	glUniformMatrix4fv(modelMatrixUniform_leaf, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform_leaf, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform_leaf, 1, GL_FALSE, perspectiveProjectionMatrix);
 
 	glBindVertexArray(vao_leaf);
 
