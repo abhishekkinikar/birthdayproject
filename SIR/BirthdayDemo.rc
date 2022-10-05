@@ -1,0 +1,11 @@
+#include "BirthdayDemo.h"
+MYICON ICON headphone.ico
+IDBITMAP_WOODEN BITMAP wooden.bmp
+IDBITMAP_SATURN BITMAP saturn.bmp
+IDBITMAP_ASTRO BITMAP astro.bmp
+IDBITMAP_MEDI BITMAP medi.bmp
+IDBITMAP_COMP BITMAP comp.bmp
+IDBITMAP_CGP BITMAP cgp.bmp
+IDBITMAP_BIRTHDAY BITMAP birthday.bmp
+MYSOUND WAVE "music.wav"
+IDBITMAP_NEWWOODEN BITMAP newwooden.bmp
